@@ -1,8 +1,9 @@
 """
 ChemSpectra Agent — FastAPI Web Server.
-Deployed on Alibaba Cloud ECS.
 
 Provides REST API and simple Web UI for the FTIR spectral analysis agent.
+Alibaba Cloud integration: dashscope SDK (Qwen-Max) via API calls.
+Server can run locally, on ECS, or any cloud — deployment is lightweight.
 """
 
 from __future__ import annotations
@@ -179,7 +180,7 @@ async def confirm(request: Request):
 
 @app.get("/health")
 async def health():
-    return {"status": "ok", "service": "chemspectra-agent", "cloud": "Alibaba Cloud ECS"}
+    return {"status": "ok", "service": "chemspectra-agent", "alibaba_cloud": "dashscope SDK (Qwen-Max)"}
 
 
 if __name__ == "__main__":

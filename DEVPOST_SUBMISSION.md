@@ -35,7 +35,7 @@ Traditional manual analysis takes 30-60 minutes per sample. ChemSpectra Agent re
 - **Agent Core**: Custom Python agent loop orchestrating the 5-step pipeline
 - **Qwen Integration**: dashscope SDK (Alibaba Cloud) with Qwen-Max for chemical reasoning, intent parsing, and report generation
 - **External Tools via MCP**: FTIR.fun MCP Server provides `analyze_ftir_spectrum` tool — 130K spectral library search, 28+ file format parsers, peak-to-functional-group mapping with DOI citations
-- **Web Server**: FastAPI on Alibaba Cloud ECS with built-in Web UI for file upload and human-in-the-loop confirmation
+- **Web Server**: FastAPI with built-in Web UI for file upload and human-in-the-loop confirmation (Alibaba Cloud proof: dashscope SDK for Qwen-Max)
 - **Human-in-the-Loop**: Deliberate checkpoint design where the agent cannot finalize a report without human confirmation
 
 ### Why Qwen Cloud
@@ -77,7 +77,7 @@ MCP (Model Context Protocol) is a powerful pattern for connecting LLMs to domain
 "Hi, I'm building ChemSpectra Agent for the Qwen Cloud Hackathon, Track 4: Autopilot Agent. This is an AI autopilot for chemical spectral analysis. Let me show you how it turns a 30-minute manual workflow into a 2-minute automated pipeline."
 
 ### 0:20-0:50 — 上传光谱
-"Here's my web interface running on Alibaba Cloud ECS. I'll upload a spectrum file — this is a .csv from an FTIR instrument. I'll add some context: 'Polymer film from production, suspected PE contamination.' Select 'Identify unknown material' and hit Analyze."
+"Here's my web interface. I'll upload a spectrum file — this is a .csv from an FTIR instrument. I'll add some context: 'Polymer film from production, suspected PE contamination.' Select 'Identify unknown material' and hit Analyze. The agent runs Qwen-Max via Alibaba Cloud dashscope for all reasoning."
 
 ### 0:50-1:30 — Agent 工作
 "The agent is now running. Behind the scenes, Qwen-Max parses my intent, then calls the FTIR.fun MCP tool to search 130,000 reference spectra. Within seconds, we get ranked matches with similarity scores. But the agent doesn't stop there — Qwen now performs chemical reasoning, checking if the functional groups are consistent with the proposed material."

@@ -29,16 +29,11 @@ def _call_qwen(self, messages: list[dict], **kwargs) -> str:
     )
 ```
 
-### 2. Alibaba Cloud ECS (Elastic Compute Service)
+### 2. Server (FastAPI)
 
-The FastAPI web server (`server.py`) is deployed on an Alibaba Cloud ECS instance.
-
-**Deployment details:**
-- **Instance type:** ecs.c7.large (2 vCPU, 4 GiB)
-- **Region:** cn-hangzhou
-- **OS:** Ubuntu 22.04 LTS
-- **Python:** 3.10+
-- **Process manager:** systemd + uvicorn
+The FastAPI server (`server.py`) is lightweight — runs locally during development
+and can be deployed anywhere. Alibaba Cloud proof is via dashscope SDK integration,
+not server hosting.
 
 **Code evidence:** [`server.py:18-22`](server.py#L18-L22)
 
@@ -50,23 +45,17 @@ app = FastAPI(
 )
 ```
 
-### 3. Alibaba Cloud OSS (Object Storage Service) — Optional
-
-For production deployments, uploaded spectrum files can be temporarily stored
-in Alibaba Cloud OSS before processing. The current implementation uses
-in-memory handling for simplicity.
-
 ## Verification
 
-To verify the deployment, run:
-
 ```bash
-curl https://<ecs-public-ip>:8080/health
+python server.py
+# → http://localhost:8080
+curl http://localhost:8080/health
 ```
 
 Expected response:
 ```json
-{"status": "ok", "service": "chemspectra-agent", "cloud": "Alibaba Cloud ECS"}
+{"status": "ok", "service": "chemspectra-agent", "alibaba_cloud": "dashscope SDK (Qwen-Max)"}
 ```
 
 ## Environment Variables

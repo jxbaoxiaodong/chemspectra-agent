@@ -14,12 +14,12 @@ ChemSpectra Agent is a production-grade AI autopilot for FTIR (Fourier Transform
 
 ```
 ┌──────────────────────────────────────────────────────────────────┐
-│                     Alibaba Cloud ECS                             │
+│                     Local / Cloud (FastAPI)                        │
 │                                                                   │
 │  ┌──────────┐     ┌─────────────────┐     ┌────────────────────┐ │
 │  │  Web UI  │────▶│   Qwen Agent    │────▶│  FTIR.fun MCP      │ │
-│  │ (FastAPI │     │  (dashscope     │     │  Server            │ │
-│  │  on ECS) │     │   Qwen-Max)     │     │  (ftir.fun:18081)  │ │
+│  │ (FastAPI)│     │  (dashscope     │     │  Server            │ │
+│  │          │     │   Qwen-Max)     │     │  (ftir.fun:18081)  │ │
 │  └──────────┘     │                 │     │                    │ │
 │                   │ • Intent parse  │     │ • Parse spectrum   │ │
 │                   │ • Chem reasoning│     │ • Search 130K lib  │ │
@@ -65,14 +65,14 @@ python server.py
 ## Proof of Alibaba Cloud
 
 See [`PROOF_ALIBABA_CLOUD.md`](PROOF_ALIBABA_CLOUD.md).  
-Key Alibaba Cloud services used: **dashscope SDK** (Qwen-Max model), **ECS** (FastAPI hosting).
+Key Alibaba Cloud service used: **dashscope SDK** (Qwen-Max model) — the agent's reasoning engine runs on Alibaba Cloud infrastructure via API calls. Server can run locally or on any cloud; Alibaba Cloud proof is the dashscope SDK integration.
 
 ## Project Structure
 
 ```
 ├── agent.py                     # Core Agent: Qwen + MCP orchestration
 ├── tools.py                     # FTIR.fun MCP client wrapper
-├── server.py                    # FastAPI web server (Alibaba Cloud ECS)
+├── server.py                    # FastAPI web server (local / any cloud)
 ├── report.py                    # Analysis report generator
 ├── requirements.txt             # Python dependencies
 ├── LICENSE                      # MIT
@@ -85,7 +85,7 @@ Key Alibaba Cloud services used: **dashscope SDK** (Qwen-Max model), **ECS** (Fa
 
 - [ ] **注册 Devpost**：[qwencloud-hackathon.devpost.com](https://qwencloud-hackathon.devpost.com/) → 点 "Join Hackathon"
 - [ ] **注册 Qwen Cloud**：[qwencloud.com](https://qwencloud.com) → 获取免费额度 + API Key → 填入 `DASHSCOPE_API_KEY`
-- [ ] **阿里云 ECS 部署**：开一台 ECS（ecs.c7.large, Ubuntu 22.04），部署 `server.py`
+- [ ] **本地运行测试**：`python server.py` → http://localhost:8080，录屏时展示阿里云控制台 + dashscope API Key 作为部署证明
 - [ ] **获取 FTIR.fun API Key**：[ftir.fun](https://ftir.fun) → Personal → API Keys
 - [ ] **端到端测试**：用真实光谱文件跑通完整 5 步 pipeline
 - [ ] **录制演示视频**：3 分钟，按 `DEVPOST_SUBMISSION.md` 里的脚本，上传 YouTube/Youku

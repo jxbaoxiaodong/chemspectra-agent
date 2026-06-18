@@ -16,7 +16,7 @@ built for **Track 4: Autopilot Agent** of the Qwen Cloud Hackathon.
 │  │  • Human-in-the-loop confirmation buttons                      │ │
 │  └────────────────────────────┬───────────────────────────────────┘ │
 │                               │                                      │
-│                    Alibaba Cloud ECS                                 │
+│                    FastAPI (local or any cloud)                      │
 └───────────────────────────────┼──────────────────────────────────────┘
                                 │
                                 ▼
@@ -85,7 +85,7 @@ built for **Track 4: Autopilot Agent** of the Qwen Cloud Hackathon.
 | Layer | Technology | Provider |
 |-------|-----------|----------|
 | LLM Reasoning | Qwen-Max via dashscope SDK | **Alibaba Cloud** ModelStudio |
-| Web Server | FastAPI + Uvicorn | **Alibaba Cloud** ECS |
+| Web Server | FastAPI + Uvicorn | Local / any cloud |
 | Agent Framework | Custom Agent loop (Python) | Self-built |
 | External Tools | MCP (Model Context Protocol) | FTIR.fun MCP Server |
 | Spectral Database | SQLite speclib.db (130K spectra) | FTIR.fun |
@@ -99,7 +99,7 @@ built for **Track 4: Autopilot Agent** of the Qwen Cloud Hackathon.
 
 3. **Human-in-the-loop by design**: In regulated industries (pharma, forensics), AI cannot make final decisions. The agent deliberately pauses at critical checkpoints.
 
-4. **Alibaba Cloud native**: All Alibaba Cloud services (ECS + ModelStudio) are used as first-class dependencies, satisfying the hackathon's deployment proof requirement.
+4. **Alibaba Cloud via dashscope**: Qwen-Max via dashscope SDK is the core Alibaba Cloud dependency. The FastAPI server runs locally; Alibaba Cloud proof is the API integration itself.
 
 ## Data Flow
 
