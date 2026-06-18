@@ -81,6 +81,42 @@ Key Alibaba Cloud services used: **dashscope SDK** (Qwen-Max model), **ECS** (Fa
 └── README.md                    # This file
 ```
 
+## 参赛待办清单
+
+- [ ] **注册 Devpost**：[qwencloud-hackathon.devpost.com](https://qwencloud-hackathon.devpost.com/) → 点 "Join Hackathon"
+- [ ] **注册 Qwen Cloud**：[qwencloud.com](https://qwencloud.com) → 获取免费额度 + API Key → 填入 `DASHSCOPE_API_KEY`
+- [ ] **阿里云 ECS 部署**：开一台 ECS（ecs.c7.large, Ubuntu 22.04），部署 `server.py`
+- [ ] **获取 FTIR.fun API Key**：[ftir.fun](https://ftir.fun) → Personal → API Keys
+- [ ] **端到端测试**：用真实光谱文件跑通完整 5 步 pipeline
+- [ ] **录制演示视频**：3 分钟，按 `DEVPOST_SUBMISSION.md` 里的脚本，上传 YouTube/Youku
+- [ ] **提交 Devpost**：贴 README 内容 + 架构图 + 视频链接 + GitHub 仓库链接
+- [ ] **（可选）写博客**：分享构建过程，争取 Blog Post 奖金（$500 × 10）
+
+## Development
+
+### GitHub Token
+
+本仓库推送使用 ftirfun 项目的 GitHub Token，位于：
+
+```
+/home/bob/projects/ftirfun/.env → GITHUB_TOKEN=ghp_xxx
+```
+
+### 修改 & 推送
+
+```bash
+cd /home/bob/projects/qwen-hackathon
+
+# 修改代码后
+git add -A
+git commit -m "描述你的改动"
+
+# 推送（token 自动从 .env 读取）
+bash -c 'TOKEN=$(grep GITHUB_TOKEN /home/bob/projects/ftirfun/.env | cut -d= -f2-); git push "https://x-access-token:${TOKEN}@github.com/jxbaoxiaodong/chemspectra-agent.git" main'
+```
+
+> Token 过期时，去 GitHub Settings → Developer settings → Personal access tokens 重新生成，更新 `/home/bob/projects/ftirfun/.env` 中的 `GITHUB_TOKEN` 即可。
+
 ## License
 
 MIT
