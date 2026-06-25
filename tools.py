@@ -77,7 +77,12 @@ class FtirfunClient:
     def _post(self, endpoint: str, body: dict[str, Any]) -> dict[str, Any]:
         """向 FTIR.fun REST API 发送 POST 请求并返回 JSON。"""
         try:
-            with httpx.Client(timeout=120.0) as client:
+            # 显式绕过代理访问本地 API（httpx >= 0.23 用 mounts）
+            no_proxy = httpx.HTTPTransport()
+            with httpx.Client(
+                timeout=120.0,
+                mounts={"http://127.0.0.1": no_proxy, "http://localhost": no_proxy},
+            ) as client:
                 resp = client.post(
                     f"{self.api_url}{endpoint}",
                     json=body,
@@ -189,7 +194,11 @@ class FtirfunClient:
             "id": 1,
         }
         try:
-            with httpx.Client(timeout=30.0) as client:
+            no_proxy = httpx.HTTPTransport()
+            with httpx.Client(
+                timeout=30.0,
+                mounts={"http://127.0.0.1": no_proxy, "http://localhost": no_proxy},
+            ) as client:
                 resp = client.post(
                     f"{self.api_url.replace(':18080', ':18081')}/mcp",
                     json=payload,

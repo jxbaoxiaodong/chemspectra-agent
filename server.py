@@ -67,13 +67,17 @@ async def analyze(
     session = agent.new_session()
 
     try:
-        result = agent.run_pipeline(
-            session,
-            user_input=user_input,
-            file_base64=file_b64,
-            filename=filename,
-            peaks=peak_list,
-            sample_context=context,
+        loop = asyncio.get_event_loop()
+        result = await loop.run_in_executor(
+            None,
+            lambda: agent.run_pipeline(
+                session,
+                user_input=user_input,
+                file_base64=file_b64,
+                filename=filename,
+                peaks=peak_list,
+                sample_context=context,
+            ),
         )
         return JSONResponse(result)
     except Exception as e:
