@@ -1,9 +1,15 @@
 """
-FTIR.fun MCP Client — wraps the FTIR.fun MCP Server tools
-for use by the Qwen Agent.
+FTIR.fun API Client — 多工具封装，供 Qwen Agent 自主选择调用。
 
-Provides a clean Python interface to the FTIR.fun spectral
-analysis tools exposed via MCP (Model Context Protocol).
+工具集:
+  - analyze_spectrum: 全流程光谱分析（物质鉴定 + 峰解释 + 官能团归属）
+  - identify_material: 材料鉴定（专注于匹配结果排序）
+  - explain_peaks: 峰位解释（每个峰对应什么化学键振动）
+  - assign_functional_groups: 官能团归属（峰位→官能团映射）
+  - match_library_topk: 谱库 Top-K 匹配（快速比对）
+  - search_public_results: 搜索公开的分析结果
+
+Auth: X-API-Key header.
 """
 
 from __future__ import annotations
@@ -12,124 +18,200 @@ import base64
 import json
 import logging
 import os
+from typing import Any
 
 import httpx
 
 logger = logging.getLogger(__name__)
 
-FTIRFUN_MCP_URL = os.environ.get(
-    "FTIRFUN_MCP_URL", "https://ftir.fun/mcp"
+FTIRFUN_API_URL = os.environ.get(
+    "FTIRFUN_API_URL", "http://127.0.0.1:18080"
 )
 FTIRFUN_API_KEY = os.environ.get("FTIRFUN_API_KEY", "")
 
 
-class FtirfunMcpClient:
-    """Client for FTIR.fun MCP Server tools."""
+class FtirfunClient:
+    """Client for FTIR.fun REST API."""
 
-    def __init__(self, api_key: str = ""):
+    def __init__(self, api_url: str = "", api_key: str = ""):
+        self.api_url = (api_url or FTIRFUN_API_URL).rstrip("/")
         self.api_key = api_key or FTIRFUN_API_KEY
-        self.base_url = FTIRFUN_MCP_URL
-        self._session_id: str | None = None
 
     def _headers(self) -> dict:
-        h = {"Content-Type": "application/json"}
-        if self.api_key:
-            h["Authorization"] = f"Bearer {self.api_key}"
-        return h
-
-    def _call_tool(self, tool_name: str, arguments: dict) -> dict:
-        """Call an MCP tool via Streamable HTTP transport."""
-        payload = {
-            "jsonrpc": "2.0",
-            "method": "tools/call",
-            "params": {
-                "name": tool_name,
-                "arguments": arguments,
-            },
-            "id": 1,
+        return {
+            "Content-Type": "application/json",
+            "X-API-Key": self.api_key,
         }
+
+    def _build_body(
+        self,
+        *,
+        file_base64: str | None = None,
+        filename: str = "spectrum.0",
+        peaks: list[float] | None = None,
+        top_k: int = 5,
+        tolerance_cm1: int = 8,
+        goal: str | None = None,
+        sample_type: str | None = None,
+    ) -> dict[str, Any] | None:
+        """构建 CanonicalFtirRequest 请求体。返回 None 表示缺少输入。"""
+        body: dict[str, Any] = {
+            "spectrum": {"type": "ftir"},
+            "options": {"top_k": top_k, "tolerance_cm1": tolerance_cm1},
+        }
+        if file_base64:
+            body["file_base64"] = file_base64
+            body["filename"] = filename
+        elif peaks:
+            body["spectrum"]["peaks"] = [float(p) for p in peaks]
+        else:
+            return None
+        if goal or sample_type:
+            body["task_context"] = {}
+            if goal:
+                body["task_context"]["goal"] = goal
+            if sample_type:
+                body["task_context"]["sample_type"] = sample_type
+        return body
+
+    def _post(self, endpoint: str, body: dict[str, Any]) -> dict[str, Any]:
+        """向 FTIR.fun REST API 发送 POST 请求并返回 JSON。"""
         try:
-            with httpx.Client(timeout=60.0) as client:
+            with httpx.Client(timeout=120.0) as client:
                 resp = client.post(
-                    self.base_url,
-                    json=payload,
+                    f"{self.api_url}{endpoint}",
+                    json=body,
                     headers=self._headers(),
                 )
                 resp.raise_for_status()
-                data = resp.json()
-
-            if "error" in data:
-                return {"success": False, "error": data["error"]}
-
-            result = data.get("result", {})
-            content = result.get("content", [])
-
-            # MCP returns content as a list of text/embedded items
-            for item in content:
-                if item.get("type") == "text":
-                    try:
-                        return json.loads(item["text"])
-                    except json.JSONDecodeError:
-                        return {"success": True, "raw_text": item["text"]}
-
-            return {"success": True, "raw_result": result}
-
+                return resp.json()
+        except httpx.HTTPStatusError as e:
+            logger.error("API HTTP error: %s %s", e.response.status_code, e.response.text[:200])
+            return {"success": False, "error": f"HTTP {e.response.status_code}"}
         except Exception as e:
-            logger.error("MCP tool call failed: %s", e)
+            logger.error("API call failed: %s", e)
             return {"success": False, "error": str(e)}
 
-    def analyze_ftir_spectrum(
+    def analyze_spectrum(
         self,
-        peaks: list[float] | None = None,
-        query: str | None = None,
+        *,
         file_base64: str | None = None,
         filename: str = "spectrum.0",
+        peaks: list[float] | None = None,
+        query: str | None = None,
         top_k: int = 5,
-        tolerance_cm1: int = 4,
-    ) -> dict:
-        """
-        Search the FTIR.fun spectral library (130K+ spectra).
+        tolerance_cm1: int = 8,
+    ) -> dict[str, Any]:
+        """全流程光谱分析——物质鉴定 + 峰解释 + 官能团归属。"""
+        body = self._build_body(
+            file_base64=file_base64, filename=filename, peaks=peaks,
+            top_k=top_k, tolerance_cm1=tolerance_cm1,
+        )
+        if body is None:
+            return {"success": False, "error": "Either file_base64 or peaks must be provided"}
+        return self._post("/ftir/analyze_spectrum", body)
 
-        Args:
-            peaks: FTIR peak positions in cm^-1
-            query: Natural language query with peak positions or context
-            file_base64: Base64-encoded spectrum file
-            filename: Original filename for format detection
-            top_k: Number of candidates to return (1-20)
-            tolerance_cm1: Peak matching tolerance in cm^-1 (1-10)
+    def identify_material(
+        self,
+        *,
+        file_base64: str | None = None,
+        filename: str = "spectrum.0",
+        peaks: list[float] | None = None,
+        top_k: int = 10,
+        sample_type: str | None = None,
+    ) -> dict[str, Any]:
+        """材料鉴定——聚焦于谱库匹配排序和物质识别。"""
+        body = self._build_body(
+            file_base64=file_base64, filename=filename, peaks=peaks,
+            top_k=top_k, goal="identification", sample_type=sample_type,
+        )
+        if body is None:
+            return {"success": False, "error": "Either file_base64 or peaks must be provided"}
+        return self._post("/ftir/identify_material", body)
 
-        Returns:
-            dict with keys: success, matches, peak_explanations, confidence
-        """
-        args = {
-            "top_k": top_k,
-            "tolerance_cm1": tolerance_cm1,
-            "filename": filename,
+    def explain_peaks(
+        self,
+        *,
+        file_base64: str | None = None,
+        filename: str = "spectrum.0",
+        peaks: list[float] | None = None,
+        sample_type: str | None = None,
+    ) -> dict[str, Any]:
+        """峰位解释——每个峰对应什么化学键振动模式。"""
+        body = self._build_body(
+            file_base64=file_base64, filename=filename, peaks=peaks,
+            top_k=5, goal="explanation", sample_type=sample_type,
+        )
+        if body is None:
+            return {"success": False, "error": "Either file_base64 or peaks must be provided"}
+        return self._post("/ftir/explain_peaks", body)
+
+    def assign_functional_groups(
+        self,
+        *,
+        file_base64: str | None = None,
+        filename: str = "spectrum.0",
+        peaks: list[float] | None = None,
+        sample_type: str | None = None,
+    ) -> dict[str, Any]:
+        """官能团归属——将峰位映射到对应的官能团。"""
+        body = self._build_body(
+            file_base64=file_base64, filename=filename, peaks=peaks,
+            top_k=5, goal="functional_groups", sample_type=sample_type,
+        )
+        if body is None:
+            return {"success": False, "error": "Either file_base64 or peaks must be provided"}
+        return self._post("/ftir/assign_functional_groups", body)
+
+    def match_library_topk(
+        self,
+        *,
+        file_base64: str | None = None,
+        filename: str = "spectrum.0",
+        peaks: list[float] | None = None,
+        top_k: int = 10,
+    ) -> dict[str, Any]:
+        """谱库 Top-K 快速匹配——返回排名前 K 的参考光谱。"""
+        body = self._build_body(
+            file_base64=file_base64, filename=filename, peaks=peaks,
+            top_k=top_k, goal="matching",
+        )
+        if body is None:
+            return {"success": False, "error": "Either file_base64 or peaks must be provided"}
+        return self._post("/ftir/match_library_topk", body)
+
+    def search_public_results(self, query: str) -> dict[str, Any]:
+        """Search publicly shared FTIR analysis results (via MCP search tool)."""
+        payload = {
+            "jsonrpc": "2.0",
+            "method": "tools/call",
+            "params": {"name": "search", "arguments": {"query": query}},
+            "id": 1,
         }
-        if peaks:
-            args["peaks"] = peaks
-        if query:
-            args["query"] = query
-        if file_base64:
-            args["file_base64"] = file_base64
-
-        return self._call_tool("analyze_ftir_spectrum", args)
-
-    def search_public_results(self, query: str) -> dict:
-        """Search publicly shared FTIR analysis results."""
-        return self._call_tool("search", {"query": query})
-
-    def fetch_result(self, result_id: int) -> dict:
-        """Fetch a specific public FTIR analysis result by ID."""
-        return self._call_tool("fetch", {"id": result_id})
+        try:
+            with httpx.Client(timeout=30.0) as client:
+                resp = client.post(
+                    f"{self.api_url.replace(':18080', ':18081')}/mcp",
+                    json=payload,
+                    headers={"Content-Type": "application/json"},
+                )
+                resp.raise_for_status()
+                data = resp.json()
+                result = data.get("result", {})
+                for item in result.get("content", []):
+                    if item.get("type") == "text":
+                        try:
+                            return json.loads(item["text"])
+                        except json.JSONDecodeError:
+                            return {"success": True, "raw_text": item["text"]}
+                return {"success": True, "raw_result": result}
+        except Exception as e:
+            logger.error("MCP search failed: %s", e)
+            return {"success": False, "error": str(e)}
 
     @staticmethod
     def encode_file(filepath: str) -> tuple[str, str]:
-        """Read and base64-encode a spectrum file.
-
-        Returns:
-            (base64_string, filename)
-        """
+        """Read and base64-encode a spectrum file. Returns (base64_string, filename)."""
         filename = os.path.basename(filepath)
         with open(filepath, "rb") as f:
             data = base64.b64encode(f.read()).decode("ascii")

@@ -1,0 +1,777 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=1920, height=1080">
+    <title>ChemSpectra Agent — Qwen Cloud Hackathon</title>
+    <script src="https://cdn.jsdelivr.net/npm/gsap@3.14.2/dist/gsap.min.js"></script>
+    <style>
+      /* === RESET & BASE === */
+      :root {
+        --bg: #0C1222;
+        --primary: #F59E0B;
+        --secondary: #38BDF8;
+        --text: #E2E8F0;
+        --muted: #94A3B8;
+        --surface: #1E293B;
+        --border: #334155;
+        --success: #22C55E;
+        --dim: #475569;
+      }
+      * { margin: 0; padding: 0; box-sizing: border-box; }
+      html, body {
+        width: 1920px; height: 1080px;
+        overflow: hidden; background: var(--bg);
+      }
+      body { font-family: "Inter", sans-serif; color: var(--text); }
+      code, .mono { font-family: "JetBrains Mono", monospace; }
+      .headline { font-family: "Inter", sans-serif; font-weight: 700; }
+
+      /* === SCENE CONTAINERS === */
+      .scene {
+        position: absolute; top: 0; left: 0;
+        width: 1920px; height: 1080px; overflow: hidden;
+      }
+      .scene-pad {
+        display: flex; flex-direction: column;
+        justify-content: center;
+        width: 100%; height: 100%;
+        padding: 80px 130px; gap: 32px;
+      }
+
+      /* === COMMON === */
+      .section-label {
+        font-size: 20px; font-weight: 600;
+        text-transform: uppercase; letter-spacing: 3px;
+        color: var(--primary); opacity: 0.85;
+      }
+      .pill {
+        display: inline-block;
+        background: rgba(245,158,11,0.12); border: 1px solid rgba(245,158,11,0.3);
+        border-radius: 100px; padding: 10px 28px;
+        font-size: 20px; color: var(--primary); font-weight: 500;
+      }
+      .arrow-right {
+        font-size: 36px; color: var(--muted); line-height: 1;
+        display: flex; align-items: center;
+      }
+      .divider {
+        width: 100%; height: 1px;
+        background: linear-gradient(90deg, transparent, var(--border), transparent);
+      }
+
+      /* === SCENE 1: TITLE === */
+      #scene1 { z-index: 1; }
+      #scene1 .scene-pad { align-items: center; text-align: center; gap: 24px; }
+      #s1-spectrum {
+        position: absolute; bottom: 0; left: 0; width: 100%;
+        height: 280px; opacity: 0.06;
+      }
+      #s1-title { font-size: 108px; font-weight: 800; color: var(--primary); letter-spacing: -2px; }
+      #s1-subtitle { font-size: 38px; color: var(--text); }
+      #s1-powered { position: absolute; bottom: 55px; font-size: 20px; color: var(--muted); }
+
+      /* === SCENE 2: IDENTITY + ORIGIN (merged) === */
+      #scene2 { z-index: 2; }
+      #scene2 .scene-pad { gap: 36px; }
+      #s2-line1 { font-size: 60px; color: var(--muted); font-weight: 600; }
+      #s2-line2 { font-size: 72px; color: var(--primary); font-weight: 700; margin-top: 4px; }
+      .pain-row {
+        display: flex; align-items: center; gap: 40px;
+      }
+      .pain-stat {
+        font-size: 56px; font-weight: 800; color: var(--primary);
+        white-space: nowrap;
+      }
+      .pain-desc { font-size: 26px; color: var(--muted); line-height: 1.5; max-width: 800px; }
+      #s2-origin { font-size: 30px; color: var(--text); font-style: italic; }
+      #s2-origin em { color: var(--primary); }
+
+      /* === SCENE 3: ARCHITECTURE === */
+      #scene3 { z-index: 3; }
+      .arch-header { font-size: 48px; font-weight: 700; }
+      .arch-row {
+        display: flex; align-items: stretch; gap: 28px;
+        flex: 1; max-height: 500px;
+      }
+      .arch-box {
+        background: var(--surface); border: 1px solid var(--border);
+        border-radius: 16px; padding: 32px;
+        display: flex; flex-direction: column; justify-content: center;
+      }
+      .arch-user { flex: 0 0 240px; align-items: center; text-align: center; gap: 14px; }
+      .arch-agent { flex: 1; border-color: var(--primary); gap: 16px; }
+      .arch-tools { flex: 0 0 360px; gap: 8px; }
+      .arch-box-title { font-size: 22px; font-weight: 700; color: var(--primary); margin-bottom: 6px; }
+      .arch-box-sub { font-size: 17px; color: var(--muted); line-height: 1.5; }
+      .react-loop {
+        display: flex; align-items: center; gap: 14px;
+        background: rgba(245,158,11,0.08); border-radius: 10px;
+        padding: 14px 20px; margin-top: 6px;
+      }
+      .react-step { font-size: 19px; font-weight: 600; color: var(--secondary); }
+      .react-arrow { font-size: 17px; color: var(--muted); }
+      .tool-item {
+        display: flex; align-items: center; gap: 10px;
+        padding: 10px 14px; border-radius: 8px;
+        background: rgba(56,189,248,0.06);
+      }
+      .tool-dot {
+        width: 9px; height: 9px; border-radius: 50%;
+        background: var(--secondary); flex-shrink: 0;
+      }
+      .tool-name { font-size: 17px; color: var(--text); }
+      .arch-footer {
+        display: flex; align-items: center; gap: 24px; margin-top: 8px;
+      }
+      .arch-result-box {
+        background: var(--surface); border: 1px solid var(--success);
+        border-radius: 10px; padding: 16px 28px;
+        font-size: 20px; font-weight: 600; color: var(--success);
+      }
+      .arch-mcp {
+        background: var(--surface); border: 1px solid var(--secondary);
+        border-radius: 10px; padding: 16px 28px;
+        font-size: 20px; font-weight: 600; color: var(--secondary);
+      }
+      .arch-stat { font-size: 18px; color: var(--muted); }
+
+      /* === SCENE 4: DEMO TERMINAL === */
+      #scene4 { z-index: 4; }
+      #scene4 .scene-pad { padding: 50px 90px; gap: 0; }
+      .terminal {
+        background: #0A0F1C; border: 1px solid var(--border);
+        border-radius: 14px; overflow: hidden; width: 100%;
+      }
+      .terminal-bar {
+        background: var(--surface); padding: 12px 20px;
+        display: flex; align-items: center; gap: 16px;
+        border-bottom: 1px solid var(--border);
+      }
+      .terminal-dots { display: flex; gap: 8px; }
+      .dot { width: 12px; height: 12px; border-radius: 50%; }
+      .dot-red { background: #EF4444; }
+      .dot-yellow { background: #F59E0B; }
+      .dot-green { background: #22C55E; }
+      .terminal-title { color: var(--muted); font-size: 17px; }
+      .terminal-body {
+        padding: 18px 28px; font-size: 18px; line-height: 1.45; color: var(--text);
+      }
+      .term-prompt { color: var(--success); margin-right: 10px; }
+      .term-section { margin: 8px 0 6px; }
+      .term-label {
+        color: var(--muted); font-size: 18px;
+        padding: 6px 14px; background: rgba(56,189,248,0.08);
+        border-radius: 6px; display: inline-block; margin-bottom: 6px;
+      }
+      .term-json { color: var(--muted); padding-left: 16px; font-size: 17px; line-height: 1.5; }
+      .json-str { color: var(--primary); }
+      .json-key { color: var(--secondary); }
+      .term-results { margin: 10px 0; }
+      .term-result {
+        display: flex; align-items: center; gap: 10px;
+        padding: 3px 0; font-size: 18px;
+      }
+      .result-check { color: var(--success); font-size: 21px; flex-shrink: 0; }
+      .result-tool { color: var(--secondary); font-weight: 600; min-width: 280px; }
+      .result-arrow { color: var(--dim); }
+      .result-val { color: var(--text); }
+      .term-synthesis {
+        margin: 6px 0 4px; padding: 10px 14px;
+        background: rgba(34,197,94,0.07); border: 1px solid rgba(34,197,94,0.2);
+        border-radius: 8px;
+      }
+      .term-synth-header { color: var(--success); font-weight: 700; font-size: 17px; margin-bottom: 2px; }
+      .term-synth-body { font-size: 17px; line-height: 1.45; }
+      .term-synth-body strong { color: var(--primary); }
+      .term-hitl {
+        margin-top: 6px; color: var(--primary);
+        display: flex; align-items: center; gap: 10px; font-size: 18px;
+      }
+      .term-confirm {
+        color: var(--success); display: flex; align-items: center;
+        gap: 10px; margin-top: 3px; font-size: 18px;
+      }
+
+      /* === SCENE 5: INNOVATION === */
+      #scene5 { z-index: 5; }
+      .innov-header { font-size: 48px; font-weight: 700; }
+      .innov-panels {
+        display: flex; gap: 40px; flex: 1;
+        align-items: stretch; max-height: 520px;
+      }
+      .innov-panel {
+        flex: 1; background: var(--surface); border: 1px solid var(--border);
+        border-radius: 16px; padding: 36px 32px;
+        display: flex; flex-direction: column; gap: 16px;
+      }
+      .innov-query {
+        font-size: 24px; font-weight: 600; color: var(--secondary);
+        font-style: italic; padding: 14px 18px;
+        border-left: 3px solid var(--secondary);
+        background: rgba(56,189,248,0.06); border-radius: 0 8px 8px 0;
+      }
+      .innov-tool-list { display: flex; flex-direction: column; gap: 10px; flex: 1; }
+      .innov-tool {
+        display: flex; align-items: center; gap: 12px;
+        padding: 12px 16px; border-radius: 10px; font-size: 20px;
+      }
+      .innov-tool.active {
+        background: rgba(34,197,94,0.1); border: 1px solid rgba(34,197,94,0.3);
+        color: var(--success); font-weight: 600;
+      }
+      .innov-tool.inactive {
+        background: rgba(71,85,105,0.12); border: 1px solid transparent;
+        color: var(--dim);
+      }
+      .innov-check {
+        width: 22px; height: 22px; border-radius: 5px;
+        display: flex; align-items: center; justify-content: center;
+        font-size: 16px; font-weight: 700; flex-shrink: 0;
+      }
+      .active .innov-check { background: var(--success); color: var(--bg); }
+      .inactive .innov-check { border: 2px solid var(--dim); color: transparent; }
+      .innov-count { font-size: 28px; font-weight: 700; color: var(--primary); text-align: center; margin-top: auto; }
+      .innov-divider { width: 2px; background: var(--border); border-radius: 2px; align-self: stretch; }
+      .innov-footer { font-size: 26px; color: var(--muted); text-align: center; }
+      .innov-footer strong { color: var(--text); font-weight: 600; }
+
+      /* === SCENE 6: IMPACT === */
+      #scene6 { z-index: 6; }
+      .impact-header { font-size: 48px; font-weight: 700; }
+      .stats-row { display: flex; gap: 36px; }
+      .stat-card {
+        flex: 1; background: var(--surface); border: 1px solid var(--border);
+        border-radius: 16px; padding: 32px; text-align: center;
+      }
+      .stat-num { font-size: 64px; font-weight: 800; color: var(--primary); line-height: 1; margin-bottom: 6px; }
+      .stat-label { font-size: 20px; color: var(--muted); font-weight: 500; }
+      .timeline {
+        display: flex; align-items: flex-start; gap: 0;
+        width: 100%; position: relative; margin-top: 8px;
+      }
+      .timeline-track {
+        position: absolute; top: 24px; left: 80px; right: 80px;
+        height: 3px; background: var(--border);
+      }
+      .timeline-progress { height: 100%; width: 0%; background: var(--primary); border-radius: 2px; }
+      .tl-node {
+        flex: 1; display: flex; flex-direction: column;
+        align-items: center; gap: 10px; position: relative; z-index: 1;
+      }
+      .tl-dot {
+        width: 16px; height: 16px; border-radius: 50%;
+        background: var(--primary); border: 3px solid var(--bg);
+        box-shadow: 0 0 0 2px var(--primary);
+      }
+      .tl-year { font-size: 30px; font-weight: 800; color: var(--primary); }
+      .tl-desc { font-size: 19px; color: var(--muted); max-width: 300px; text-align: center; line-height: 1.4; }
+      .impact-bottom {
+        font-size: 28px; color: var(--muted); text-align: center; margin-top: 4px;
+      }
+      .impact-bottom strong { color: var(--text); }
+
+      /* === SCENE 7: CLOSING === */
+      #scene7 { z-index: 7; }
+      #scene7 .scene-pad { align-items: center; text-align: center; gap: 28px; }
+      .stack-card {
+        background: var(--surface); border: 1px solid var(--border);
+        border-radius: 16px; padding: 36px 56px; text-align: left; min-width: 860px;
+      }
+      .stack-item {
+        display: flex; align-items: center; gap: 14px;
+        padding: 12px 0; font-size: 22px;
+        border-bottom: 1px solid rgba(51,65,85,0.5);
+      }
+      .stack-item:last-child { border-bottom: none; }
+      .stack-bullet { color: var(--primary); font-size: 18px; }
+      .stack-text strong { color: var(--primary); font-weight: 600; }
+      .closing-github {
+        font-size: 24px; color: var(--secondary);
+        padding: 14px 32px; border: 1px solid rgba(56,189,248,0.3);
+        border-radius: 10px; background: rgba(56,189,248,0.06);
+      }
+      .closing-tagline { font-size: 40px; font-weight: 700; line-height: 1.3; }
+      .closing-tagline em { color: var(--primary); font-style: normal; }
+      .closing-thanks { font-size: 52px; font-weight: 800; color: var(--primary); }
+
+      /* === BLACKOUT === */
+      #blackout {
+        position: absolute; top: 0; left: 0;
+        width: 1920px; height: 1080px;
+        background: var(--bg); z-index: 100;
+        opacity: 0; pointer-events: none;
+      }
+    </style>
+  </head>
+  <body>
+    <div data-hf-id="hf-plbr" id="root" data-composition-id="main" data-start="0" data-duration="180" data-width="1920" data-height="1080">
+
+      <!-- =================== SCENE 1: TITLE (0–7s) =================== -->
+      <div data-hf-id="hf-zet7" id="scene1" class="scene">
+        <svg data-hf-id="hf-dhdb" id="s1-spectrum" viewBox="0 0 1920 280" preserveAspectRatio="none">
+          <polyline data-hf-id="hf-dbgj" fill="none" stroke="#F59E0B" stroke-width="2.5" points="0,200 80,195 160,198 240,190 300,160 340,90 360,50 380,90 420,160 480,192 560,198 640,195 700,185 740,140 770,80 790,40 810,80 840,140 880,185 960,195 1040,198 1100,190 1140,165 1170,130 1190,100 1210,130 1240,165 1280,190 1360,198 1440,195 1500,188 1540,155 1570,110 1590,70 1610,110 1640,155 1700,188 1780,196 1860,198 1920,200" />
+        </svg>
+        <div data-hf-id="hf-f1lc" class="scene-pad">
+          <div data-hf-id="hf-21pg" id="s1-badge" class="pill">Track 4 • Autopilot Agent</div>
+          <div data-hf-id="hf-vjtr" id="s1-title" class="headline">CHEMSPECTRA AGENT</div>
+          <div data-hf-id="hf-uknb" id="s1-subtitle">AI Autopilot for FTIR Spectral Analysis</div>
+          <div data-hf-id="hf-inhp" id="s1-powered" class="mono">Built with Qwen-Max via Alibaba Cloud</div>
+        </div>
+      </div>
+
+      <!-- =================== SCENE 2: IDENTITY + ORIGIN (7–22s) =================== -->
+      <div data-hf-id="hf-6qeb" id="scene2" class="scene" style="opacity: 0">
+        <div data-hf-id="hf-pt48" class="scene-pad">
+          <div data-hf-id="hf-yeow">
+            <div data-hf-id="hf-xs1g" id="s2-line1" class="headline">"I'm not a software engineer."</div>
+            <div data-hf-id="hf-8zi4" id="s2-line2" class="headline">"I'm a materials scientist."</div>
+          </div>
+          <div data-hf-id="hf-2odu" class="divider" id="s2-divider"></div>
+          <div data-hf-id="hf-gxhn" class="pain-row" id="s2-pain">
+            <div data-hf-id="hf-v4y5" class="pain-stat headline">30–60 min</div>
+            <div data-hf-id="hf-u48e" class="pain-desc">per sample — reading peaks, searching libraries, cross-checking literature, writing reports. Every day.</div>
+          </div>
+          <div data-hf-id="hf-80r6" id="s2-origin">"The need came from the lab. <em data-hf-id="hf-r5fn">AI came second.</em>"</div>
+        </div>
+      </div>
+
+      <!-- =================== SCENE 3: ARCHITECTURE (22–47s) =================== -->
+      <div data-hf-id="hf-28kg" id="scene3" class="scene" style="opacity: 0">
+        <div data-hf-id="hf-ahcn" class="scene-pad" style="gap: 24px;">
+          <div data-hf-id="hf-y7yw">
+            <div data-hf-id="hf-elxa" class="section-label" id="s3-label">Architecture</div>
+            <div data-hf-id="hf-h72q" class="arch-header headline" id="s3-header">How ChemSpectra Agent Works</div>
+          </div>
+          <div data-hf-id="hf-y2o7" class="arch-row">
+            <div data-hf-id="hf-00s0" class="arch-box arch-user" id="s3-user">
+              <div data-hf-id="hf-2zc1" style="font-size: 48px;">🧪</div>
+              <div data-hf-id="hf-qgc2" class="arch-box-title">User Query</div>
+              <div data-hf-id="hf-s1qk" class="arch-box-sub">Spectrum + natural language</div>
+            </div>
+            <div data-hf-id="hf-y3h5" class="arrow-right" id="s3-arrow1" style="font-size: 44px;">→</div>
+            <div data-hf-id="hf-nans" class="arch-box arch-agent" id="s3-agent">
+              <div data-hf-id="hf-pqim" class="arch-box-title" style="font-size: 26px;">Qwen-Max Agent</div>
+              <div data-hf-id="hf-mhcb" class="arch-box-sub">dashscope SDK • Multi-round Reasoning</div>
+              <div data-hf-id="hf-o3xu" class="react-loop" id="s3-react">
+                <span data-hf-id="hf-kt57" class="react-step">Think</span>
+                <span data-hf-id="hf-ehow" class="react-arrow">→</span>
+                <span data-hf-id="hf-fj3v" class="react-step">Act</span>
+                <span data-hf-id="hf-huco" class="react-arrow">→</span>
+                <span data-hf-id="hf-zlfz" class="react-step">Observe</span>
+                <span data-hf-id="hf-nmqj" class="react-arrow">→</span>
+                <span data-hf-id="hf-xvfy" class="react-step" style="color: var(--success);">Verify</span>
+                <span data-hf-id="hf-qpbm" class="react-arrow">↻</span>
+              </div>
+              <div data-hf-id="hf-vrfx" class="react-loop" id="s3-repair" style="background: rgba(34,197,94,0.08); margin-top: 4px;">
+                <span data-hf-id="hf-bmsd" class="react-step" style="color: var(--success); font-size: 16px;">Self-repair</span>
+                <span data-hf-id="hf-kfsd" class="react-arrow" style="font-size: 14px;">•</span>
+                <span data-hf-id="hf-dmfx" class="react-step" style="color: var(--success); font-size: 16px;">Cross-validation</span>
+                <span data-hf-id="hf-jfbx" class="react-arrow" style="font-size: 14px;">•</span>
+                <span data-hf-id="hf-nmbf" class="react-step" style="color: var(--success); font-size: 16px;">Confidence-aware</span>
+              </div>
+            </div>
+            <div data-hf-id="hf-akqi" class="arrow-right" id="s3-arrow2" style="font-size: 44px;">→</div>
+            <div data-hf-id="hf-ye5c" class="arch-box arch-tools" id="s3-tools">
+              <div data-hf-id="hf-ic58" class="arch-box-title">FTIR.fun API Tools</div>
+              <div data-hf-id="hf-ja5a" class="tool-item" id="s3-t1"><div data-hf-id="hf-f47k" class="tool-dot"></div><span data-hf-id="hf-eipy" class="tool-name mono">identify_material</span></div>
+              <div data-hf-id="hf-fc19" class="tool-item" id="s3-t2"><div data-hf-id="hf-js2w" class="tool-dot"></div><span data-hf-id="hf-x45u" class="tool-name mono">explain_peaks</span></div>
+              <div data-hf-id="hf-ekdg" class="tool-item" id="s3-t3"><div data-hf-id="hf-il5t" class="tool-dot"></div><span data-hf-id="hf-hc0e" class="tool-name mono">assign_functional_groups</span></div>
+              <div data-hf-id="hf-21uz" class="tool-item" id="s3-t4"><div data-hf-id="hf-izgu" class="tool-dot"></div><span data-hf-id="hf-e704" class="tool-name mono">match_library_topk</span></div>
+              <div data-hf-id="hf-y3qy" class="tool-item" id="s3-t5"><div data-hf-id="hf-hsjr" class="tool-dot"></div><span data-hf-id="hf-jydn" class="tool-name mono">search_public_results</span></div>
+            </div>
+          </div>
+          <div data-hf-id="hf-m66o" class="arch-footer" id="s3-footer">
+            <div data-hf-id="hf-412j" class="arch-result-box">↓ Synthesized Analysis</div>
+            <div data-hf-id="hf-jl4t" class="arch-mcp" id="s3-mcp">MCP Endpoint</div>
+            <div data-hf-id="hf-ecr7" class="arch-stat">Backed by <strong data-hf-id="hf-wqis" style="color:var(--primary);">130,000+</strong> reference spectra</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- =================== SCENE 4: DEMO TERMINAL (47–95s) =================== -->
+      <div data-hf-id="hf-zj4t" id="scene4" class="scene" style="opacity: 0">
+        <div data-hf-id="hf-vuvz" class="scene-pad" style="padding: 44px 80px; gap: 0;">
+          <div data-hf-id="hf-3pfx" class="section-label" id="s4-label" style="margin-bottom: 14px;">Live Demo</div>
+          <div data-hf-id="hf-pesw" class="terminal" id="s4-terminal">
+            <div data-hf-id="hf-b8ww" class="terminal-bar">
+              <div data-hf-id="hf-i1fl" class="terminal-dots">
+                <span data-hf-id="hf-2fdx" class="dot dot-red"></span>
+                <span data-hf-id="hf-wq2o" class="dot dot-yellow"></span>
+                <span data-hf-id="hf-sb41" class="dot dot-green"></span>
+              </div>
+              <span data-hf-id="hf-r9sg" class="terminal-title mono">chemspectra-agent</span>
+            </div>
+            <div data-hf-id="hf-lf8u" class="terminal-body mono">
+              <div data-hf-id="hf-frg7" id="s4-prompt">
+                <span data-hf-id="hf-iosn" class="term-prompt">❯</span>
+                <span data-hf-id="hf-9et8">Identify this material: peaks at 2920, 1720, 1230 cm⁻¹</span>
+              </div>
+              <div data-hf-id="hf-8lac" class="term-section" id="s4-api">
+                <div data-hf-id="hf-rysi" class="term-label"><span data-hf-id="hf-z1cr" class="json-key">dashscope</span>.Generation.call(model=<span data-hf-id="hf-bnjp" class="json-str">"qwen-max"</span>)</div>
+                <div data-hf-id="hf-h55l" class="term-json">
+                  <div data-hf-id="hf-8tir" class="json-line" id="s4-j1">tool_calls: [</div>
+                  <div data-hf-id="hf-reyc" class="json-line" id="s4-j2">&#160;&#160;{ name: <span data-hf-id="hf-kfm3" class="json-str">"identify_material"</span>, args: {peaks: [2920, 1720, 1230]} },</div>
+                  <div data-hf-id="hf-8dfh" class="json-line" id="s4-j3">&#160;&#160;{ name: <span data-hf-id="hf-2ckv" class="json-str">"explain_peaks"</span>, args: {peaks: [2920, 1720, 1230]} },</div>
+                  <div data-hf-id="hf-tely" class="json-line" id="s4-j4">&#160;&#160;{ name: <span data-hf-id="hf-xtd9" class="json-str">"assign_functional_groups"</span>, args: {peaks: [2920, 1720, 1230]} }</div>
+                  <div data-hf-id="hf-vief" class="json-line" id="s4-j5">]</div>
+                </div>
+              </div>
+              <div data-hf-id="hf-trxb" class="term-results">
+                <div data-hf-id="hf-gn1n" class="term-result" id="s4-r1">
+                  <span data-hf-id="hf-nvv2" class="result-check">✓</span>
+                  <span data-hf-id="hf-9i9j" class="result-tool">identify_material</span>
+                  <span data-hf-id="hf-pk58" class="result-arrow">→</span>
+                  <span data-hf-id="hf-zzck" class="result-val">Polyethylene Terephthalate (PET), 94.2% match</span>
+                </div>
+                <div data-hf-id="hf-7z5s" class="term-result" id="s4-r2">
+                  <span data-hf-id="hf-nbpu" class="result-check">✓</span>
+                  <span data-hf-id="hf-nbwb" class="result-tool">explain_peaks</span>
+                  <span data-hf-id="hf-poz8" class="result-arrow">→</span>
+                  <span data-hf-id="hf-kd9i" class="result-val">C=O stretch 1720, C-H stretch 2920, C-O stretch 1230</span>
+                </div>
+                <div data-hf-id="hf-8qtl" class="term-result" id="s4-r3">
+                  <span data-hf-id="hf-nq0v" class="result-check">✓</span>
+                  <span data-hf-id="hf-ztep" class="result-tool">assign_functional_groups</span>
+                  <span data-hf-id="hf-oi25" class="result-arrow">→</span>
+                  <span data-hf-id="hf-gk18" class="result-val">Ester, Aromatic ring, Methylene</span>
+                </div>
+              </div>
+              <div data-hf-id="hf-hbvd" class="term-synthesis" id="s4-synth">
+                <div data-hf-id="hf-l06h" class="term-synth-header">▸ Initial Synthesis</div>
+                <div data-hf-id="hf-daq3" class="term-synth-body">
+                  Material: <strong data-hf-id="hf-ddkj">PET</strong> &#160;|&#160;
+                  Confidence: <strong data-hf-id="hf-dl6i">0.72</strong> &#160;|&#160;
+                  Key groups: Ester C=O, Aromatic C=C, Methylene C-H
+                </div>
+              </div>
+              <div data-hf-id="hf-cv1x" id="s4-crossval" style="margin: 8px 0; padding: 10px 16px; background: rgba(245,158,11,0.07); border: 1px solid rgba(245,158,11,0.2); border-radius: 8px;">
+                <div data-hf-id="hf-cv2x" style="color: var(--primary); font-weight: 700; font-size: 18px; margin-bottom: 4px;">▸ Cross-validation: 1 conflict detected</div>
+                <div data-hf-id="hf-cv3x" style="font-size: 17px; color: var(--muted);">Confidence 0.72 &lt; threshold 0.75 → auto-verification triggered</div>
+              </div>
+              <div data-hf-id="hf-vr1x" id="s4-verify" style="margin: 6px 0;">
+                <div data-hf-id="hf-vr2x" class="term-label" style="background: rgba(34,197,94,0.08);"><span data-hf-id="hf-vr3x" style="color: var(--success);">Verification Round</span> — agent autonomously investigates</div>
+                <div data-hf-id="hf-vr4x" class="term-result" id="s4-vr1">
+                  <span data-hf-id="hf-vr5x" class="result-check">✓</span>
+                  <span data-hf-id="hf-vr6x" class="result-tool">explain_peaks</span>
+                  <span data-hf-id="hf-vr7x" class="result-arrow">→</span>
+                  <span data-hf-id="hf-vr8x" class="result-val">Confirmed: 1720 = ester C=O, 1240 = C-O-C aromatic ester</span>
+                </div>
+              </div>
+              <div data-hf-id="hf-vf1x" class="term-synthesis" id="s4-final" style="border-color: rgba(34,197,94,0.4);">
+                <div data-hf-id="hf-vf2x" class="term-synth-header">▸ Verified Synthesis</div>
+                <div data-hf-id="hf-vf3x" class="term-synth-body">
+                  Confidence: <strong data-hf-id="hf-vf4x">0.72 → 0.94</strong> &#160;|&#160;
+                  Status: <strong data-hf-id="hf-vf5x" style="color: var(--success);">verified</strong> &#160;|&#160;
+                  LLM calls: <strong data-hf-id="hf-vf6x">4</strong> (2 reasoning + 1 verify + 1 synthesis)
+                </div>
+              </div>
+              <div data-hf-id="hf-28d3" class="term-hitl" id="s4-hitl">
+                <span data-hf-id="hf-eil7">⏸</span>
+                <span data-hf-id="hf-f5f7">Awaiting human confirmation...</span>
+              </div>
+              <div data-hf-id="hf-siql" class="term-confirm" id="s4-confirm">
+                <span data-hf-id="hf-ls52">✓</span>
+                <span data-hf-id="hf-3yzk">Confirmed — Structured report generated</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- =================== SCENE 5: INNOVATION (95–120s) =================== -->
+      <div data-hf-id="hf-2r4y" id="scene5" class="scene" style="opacity: 0">
+        <div data-hf-id="hf-pe8n" class="scene-pad" style="gap: 24px;">
+          <div data-hf-id="hf-x11t">
+            <div data-hf-id="hf-c6cn" class="section-label" id="s5-label">Core Innovation</div>
+            <div data-hf-id="hf-zv49" class="innov-header headline" id="s5-header">Multi-Round Self-Verifying Agent</div>
+          </div>
+          <div data-hf-id="hf-ju2y" class="innov-panels">
+            <div data-hf-id="hf-zae1" class="innov-panel" id="s5-panelA" style="gap: 12px;">
+              <div data-hf-id="hf-vk3y" class="innov-query" style="border-left-color: var(--dim); color: var(--dim);">Typical API Wrapper</div>
+              <div data-hf-id="hf-taj6" class="innov-tool-list" style="gap: 8px;">
+                <div data-hf-id="hf-efy8" class="innov-tool inactive" id="s5a-t1"><div data-hf-id="hf-zs1y" class="innov-check" style="border-color: var(--dim);"></div><span data-hf-id="hf-a8mk">Call tools once</span></div>
+                <div data-hf-id="hf-n3u3" class="innov-tool inactive" id="s5a-t2"><div data-hf-id="hf-w79m" class="innov-check" style="border-color: var(--dim);"></div><span data-hf-id="hf-06ig">Merge results</span></div>
+                <div data-hf-id="hf-j5q2" class="innov-tool inactive" id="s5a-t3"><div data-hf-id="hf-wlkn" class="innov-check" style="border-color: var(--dim);"></div><span data-hf-id="hf-vcrg">Return to user</span></div>
+              </div>
+              <div data-hf-id="hf-hja8" class="innov-count" id="s5a-count" style="color: var(--dim);">1-2 LLM calls • No verification</div>
+            </div>
+            <div data-hf-id="hf-p0pg" class="innov-divider" id="s5-divider"></div>
+            <div data-hf-id="hf-38i2" class="innov-panel" id="s5-panelB" style="border-color: var(--primary); gap: 10px;">
+              <div data-hf-id="hf-gi0o" class="innov-query">ChemSpectra Agent</div>
+              <div data-hf-id="hf-kq1i" class="innov-tool-list" style="gap: 6px;">
+                <div data-hf-id="hf-umm4" class="innov-tool active" id="s5b-t1"><div data-hf-id="hf-yxik" class="innov-check">✓</div><span data-hf-id="hf-fj5w">ReAct reasoning loop</span></div>
+                <div data-hf-id="hf-zknu" class="innov-tool active" id="s5b-t2"><div data-hf-id="hf-wzvo" class="innov-check">✓</div><span data-hf-id="hf-mimo">Evidence cross-validation</span></div>
+                <div data-hf-id="hf-3irv" class="innov-tool active" id="s5b-t3"><div data-hf-id="hf-xe6p" class="innov-check">✓</div><span data-hf-id="hf-clsk">Auto self-verification</span></div>
+                <div data-hf-id="hf-a7vl" class="innov-tool active" id="s5b-t4"><div data-hf-id="hf-yj7j" class="innov-check">✓</div><span data-hf-id="hf-r1mq">Self-repair on failure</span></div>
+                <div data-hf-id="hf-9g7s" class="innov-tool active" id="s5b-t5"><div data-hf-id="hf-zq4m" class="innov-check">✓</div><span data-hf-id="hf-1i25">Human-in-the-loop gate</span></div>
+              </div>
+              <div data-hf-id="hf-b7ye" class="innov-count" id="s5b-count">3-6 adaptive LLM calls • Verified</div>
+            </div>
+          </div>
+          <div data-hf-id="hf-sr6l" class="innov-footer" id="s5-footer">
+            Same spectrum, <strong data-hf-id="hf-otxf">different confidence</strong> — verification raises 0.72 → 0.94
+          </div>
+        </div>
+      </div>
+
+      <!-- =================== SCENE 6: IMPACT (120–155s) =================== -->
+      <div data-hf-id="hf-ge0n" id="scene6" class="scene" style="opacity: 0">
+        <div data-hf-id="hf-hsur" class="scene-pad" style="gap: 28px;">
+          <div data-hf-id="hf-xfcu">
+            <div data-hf-id="hf-cz6a" class="section-label" id="s6-label">Impact</div>
+            <div data-hf-id="hf-fnyx" class="impact-header headline" id="s6-header">Not a Demo — A Production Platform</div>
+          </div>
+          <div data-hf-id="hf-6xv5" class="stats-row" id="s6-stats">
+            <div data-hf-id="hf-ngmo" class="stat-card" id="s6-stat1">
+              <div data-hf-id="hf-lw1j" class="stat-num headline" id="s6-num1">130,000+</div>
+              <div data-hf-id="hf-31vs" class="stat-label">Reference Spectra</div>
+            </div>
+            <div data-hf-id="hf-w4ij" class="stat-card" id="s6-stat2">
+              <div data-hf-id="hf-xqdk" class="stat-num headline" id="s6-num2">28+</div>
+              <div data-hf-id="hf-65s5" class="stat-label">File Formats</div>
+            </div>
+            <div data-hf-id="hf-s6ei" class="stat-card" id="s6-stat3">
+              <div data-hf-id="hf-078v" class="stat-num headline" id="s6-num3">52</div>
+              <div data-hf-id="hf-ynwv" class="stat-label">Countries</div>
+            </div>
+          </div>
+          <div data-hf-id="hf-x5q4" class="timeline" id="s6-timeline">
+            <div data-hf-id="hf-03kr" class="timeline-track">
+              <div data-hf-id="hf-qg42" class="timeline-progress" id="s6-progress"></div>
+            </div>
+            <div data-hf-id="hf-8csm" class="tl-node" id="s6-n1">
+              <div data-hf-id="hf-fscy" class="tl-year headline">2024</div>
+              <div data-hf-id="hf-9h5i" class="tl-dot"></div>
+              <div data-hf-id="hf-ic8a" class="tl-desc">Self-taught Python to solve a real industry problem</div>
+            </div>
+            <div data-hf-id="hf-4eol" class="tl-node" id="s6-n2">
+              <div data-hf-id="hf-fe1x" class="tl-year headline">2025</div>
+              <div data-hf-id="hf-xptm" class="tl-dot"></div>
+              <div data-hf-id="hf-l1kt" class="tl-desc">FTIR.fun launches — 130K spectra, public API</div>
+            </div>
+            <div data-hf-id="hf-1ff0" class="tl-node" id="s6-n3">
+              <div data-hf-id="hf-gkz0" class="tl-year headline">2026</div>
+              <div data-hf-id="hf-y44n" class="tl-dot"></div>
+              <div data-hf-id="hf-0c1z" class="tl-desc">Production system, paying users worldwide</div>
+            </div>
+          </div>
+          <div data-hf-id="hf-0kao" class="impact-bottom" id="s6-bottom">
+            The best AI applications come from people who <strong data-hf-id="hf-req9">understand the problem deeply</strong>.
+          </div>
+        </div>
+      </div>
+
+      <!-- =================== SCENE 7: CLOSING (155–180s) =================== -->
+      <div data-hf-id="hf-don8" id="scene7" class="scene" style="opacity: 0">
+        <div data-hf-id="hf-om75" class="scene-pad">
+          <div data-hf-id="hf-gfae" class="stack-card" id="s7-card">
+            <div data-hf-id="hf-rl2v" class="stack-item" id="s7-i1">
+              <span data-hf-id="hf-o1tw" class="stack-bullet">▸</span>
+              <span data-hf-id="hf-8sde" class="stack-text"><strong data-hf-id="hf-h2ea">Qwen-Max</strong> via Alibaba Cloud dashscope SDK</span>
+            </div>
+            <div data-hf-id="hf-ix70" class="stack-item" id="s7-i2">
+              <span data-hf-id="hf-vh4s" class="stack-bullet">▸</span>
+              <span data-hf-id="hf-5ljp" class="stack-text"><strong data-hf-id="hf-48kc">Multi-round reasoning</strong> with self-verification &amp; self-repair</span>
+            </div>
+            <div data-hf-id="hf-jout" class="stack-item" id="s7-i3">
+              <span data-hf-id="hf-ua7p" class="stack-bullet">▸</span>
+              <span data-hf-id="hf-dkcv" class="stack-text"><strong data-hf-id="hf-jlb3">5 autonomous tools</strong> • Evidence cross-validation • <strong data-hf-id="hf-a4na">MCP</strong></span>
+            </div>
+            <div data-hf-id="hf-2gki" class="stack-item" id="s7-i4">
+              <span data-hf-id="hf-uoiq" class="stack-bullet">▸</span>
+              <span data-hf-id="hf-j3tl" class="stack-text"><strong data-hf-id="hf-uu0w">130,000+</strong> spectra • <strong data-hf-id="hf-hu2w">Human-in-the-loop</strong> compliance</span>
+            </div>
+          </div>
+          <div data-hf-id="hf-nzfa" class="closing-github mono" id="s7-github">
+            github.com/jxbaoxiaodong/chemspectra-agent
+          </div>
+          <div data-hf-id="hf-vgua" class="closing-tagline headline" id="s7-tagline">
+            Built by a domain expert. Powered by <em data-hf-id="hf-gb8x">AI</em>.
+          </div>
+          <div data-hf-id="hf-iols" class="closing-thanks headline" id="s7-thanks">Thank you.</div>
+        </div>
+      </div>
+
+      <div data-hf-id="hf-9vqe" id="blackout"></div>
+    </div>
+
+    <script>
+      window.__timelines = window.__timelines || {};
+      var tl = gsap.timeline({ paused: true });
+
+      /* =================== SCENE 1: TITLE (0–7s) =================== */
+      tl.from("#s1-spectrum", { opacity: 0, duration: 2.5, ease: "power1.in" }, 0.2);
+      tl.to("#s1-spectrum", { x: 80, duration: 6, ease: "none" }, 0.5);
+      tl.from("#s1-badge", { opacity: 0, y: -30, duration: 0.5, ease: "power3.out" }, 0.5);
+      tl.from("#s1-title", { opacity: 0, y: 60, duration: 0.9, ease: "power3.out" }, 0.8);
+      tl.from("#s1-subtitle", { opacity: 0, y: 40, duration: 0.6, ease: "power3.out" }, 1.5);
+      tl.from("#s1-powered", { opacity: 0, duration: 0.6, ease: "power2.out" }, 2.2);
+
+      /* =================== T1: SCENE 1 → 2 (6.5s) =================== */
+      var T1 = 6.5;
+      tl.to("#scene1", { filter: "blur(12px)", scale: 1.04, opacity: 0, duration: 0.5, ease: "power2.inOut" }, T1);
+      tl.fromTo("#scene2",
+        { filter: "blur(12px)", scale: 0.96, opacity: 0 },
+        { filter: "blur(0px)", scale: 1, opacity: 1, duration: 0.5, ease: "power2.inOut" }, T1 + 0.1);
+
+      /* =================== SCENE 2: IDENTITY + ORIGIN (7–22s) =================== */
+      tl.from("#s2-line1", { opacity: 0, x: -60, duration: 0.6, ease: "power3.out" }, T1 + 0.5);
+      tl.from("#s2-line2", { opacity: 0, x: -60, duration: 0.7, ease: "power3.out" }, T1 + 1.5);
+      tl.from("#s2-divider", { opacity: 0, scaleX: 0, duration: 0.4, ease: "power2.out" }, T1 + 3.5);
+      tl.from("#s2-pain", { opacity: 0, y: 30, duration: 0.6, ease: "power3.out" }, T1 + 4.5);
+      tl.from("#s2-origin", { opacity: 0, y: 20, duration: 0.6, ease: "power3.out" }, T1 + 7);
+      /* ambient: pain stat subtle pulse */
+      tl.to(".pain-stat", { scale: 1.03, duration: 1.5, ease: "sine.inOut", yoyo: true, repeat: 3 }, T1 + 5.5);
+
+      /* =================== T2: SCENE 2 → 3 (21.5s) =================== */
+      var T2 = 21.5;
+      tl.to("#scene2", { filter: "blur(12px)", scale: 1.04, opacity: 0, duration: 0.5, ease: "power2.inOut" }, T2);
+      tl.fromTo("#scene3",
+        { filter: "blur(12px)", scale: 0.96, opacity: 0 },
+        { filter: "blur(0px)", scale: 1, opacity: 1, duration: 0.5, ease: "power2.inOut" }, T2 + 0.1);
+
+      /* =================== SCENE 3: ARCHITECTURE (22–47s) =================== */
+      tl.from("#s3-label",  { opacity: 0, y: 20, duration: 0.4, ease: "power3.out" }, T2 + 0.4);
+      tl.from("#s3-header", { opacity: 0, y: 30, duration: 0.5, ease: "power3.out" }, T2 + 0.7);
+      tl.from("#s3-user",   { opacity: 0, x: -50, duration: 0.6, ease: "power3.out" }, T2 + 2);
+      tl.from("#s3-arrow1", { opacity: 0, x: -20, duration: 0.3, ease: "power2.out" }, T2 + 2.8);
+      tl.from("#s3-agent",  { opacity: 0, y: 40, duration: 0.7, ease: "power3.out" }, T2 + 3.2);
+      tl.from("#s3-react",  { opacity: 0, scale: 0.9, duration: 0.5, ease: "power2.out" }, T2 + 4.5);
+      tl.from("#s3-repair", { opacity: 0, scale: 0.9, duration: 0.4, ease: "power2.out" }, T2 + 5.2);
+      tl.from("#s3-arrow2", { opacity: 0, x: -20, duration: 0.3, ease: "power2.out" }, T2 + 5.8);
+      tl.from("#s3-t1", { opacity: 0, x: 40, duration: 0.35, ease: "power3.out" }, T2 + 6);
+      tl.from("#s3-t2", { opacity: 0, x: 40, duration: 0.35, ease: "power3.out" }, T2 + 6.5);
+      tl.from("#s3-t3", { opacity: 0, x: 40, duration: 0.35, ease: "power3.out" }, T2 + 7);
+      tl.from("#s3-t4", { opacity: 0, x: 40, duration: 0.35, ease: "power3.out" }, T2 + 7.5);
+      tl.from("#s3-t5", { opacity: 0, x: 40, duration: 0.35, ease: "power3.out" }, T2 + 8);
+      tl.from("#s3-footer", { opacity: 0, y: 24, duration: 0.5, ease: "power3.out" }, T2 + 10);
+      tl.from("#s3-mcp", { opacity: 0, scale: 0.9, duration: 0.4, ease: "power3.out" }, T2 + 11);
+      /* ambient: react loop subtle glow */
+      tl.to(".react-loop", { boxShadow: "0 0 20px rgba(245,158,11,0.15)", duration: 2, ease: "sine.inOut", yoyo: true, repeat: 5 }, T2 + 5);
+
+      /* =================== T3: SCENE 3 → 4 (46.5s) =================== */
+      var T3 = 46.5;
+      tl.to("#scene3", { filter: "blur(12px)", scale: 1.04, opacity: 0, duration: 0.5, ease: "power2.inOut" }, T3);
+      tl.fromTo("#scene4",
+        { filter: "blur(12px)", scale: 0.96, opacity: 0 },
+        { filter: "blur(0px)", scale: 1, opacity: 1, duration: 0.5, ease: "power2.inOut" }, T3 + 0.1);
+
+      /* =================== SCENE 4: DEMO TERMINAL (47–95s) =================== */
+      tl.from("#s4-label", { opacity: 0, y: 20, duration: 0.3, ease: "power3.out" }, T3 + 0.4);
+      tl.from("#s4-terminal", { opacity: 0, y: 30, duration: 0.6, ease: "power3.out" }, T3 + 0.6);
+      /* user query — voiceover: "A user submits a spectrum..." ~49s */
+      tl.from("#s4-prompt", { opacity: 0, x: -30, duration: 0.5, ease: "power2.out" }, T3 + 2);
+      /* dashscope API call — voiceover: "The agent calls dashscope..." ~54s */
+      tl.from("#s4-api", { opacity: 0, duration: 0.4, ease: "power2.out" }, T3 + 7);
+      tl.from("#s4-j1", { opacity: 0, x: -20, duration: 0.3, ease: "power2.out" }, T3 + 8);
+      tl.from("#s4-j2", { opacity: 0, x: -20, duration: 0.3, ease: "power2.out" }, T3 + 9);
+      tl.from("#s4-j3", { opacity: 0, x: -20, duration: 0.3, ease: "power2.out" }, T3 + 10);
+      tl.from("#s4-j4", { opacity: 0, x: -20, duration: 0.3, ease: "power2.out" }, T3 + 11);
+      tl.from("#s4-j5", { opacity: 0, x: -20, duration: 0.3, ease: "power2.out" }, T3 + 12);
+      /* tool results — voiceover: "Each tool hits the FTIR.fun API..." ~62s */
+      tl.from("#s4-r1", { opacity: 0, x: -20, duration: 0.4, ease: "power3.out" }, T3 + 15);
+      tl.from("#s4-r2", { opacity: 0, x: -20, duration: 0.4, ease: "power3.out" }, T3 + 18);
+      tl.from("#s4-r3", { opacity: 0, x: -20, duration: 0.4, ease: "power3.out" }, T3 + 21);
+      /* initial synthesis — voiceover: "initial match is PET, confidence 0.72..." ~71s */
+      tl.from("#s4-synth", { opacity: 0, y: 20, duration: 0.5, ease: "power3.out" }, T3 + 22);
+      /* cross-validation — voiceover: "cross-validation detects low confidence..." ~73s */
+      tl.from("#s4-crossval", { opacity: 0, y: 16, duration: 0.5, ease: "power3.out" }, T3 + 25);
+      /* verification round — voiceover: "agent autonomously launches verification..." ~76s */
+      tl.from("#s4-verify", { opacity: 0, y: 16, duration: 0.5, ease: "power3.out" }, T3 + 28);
+      tl.from("#s4-vr1", { opacity: 0, x: -20, duration: 0.4, ease: "power3.out" }, T3 + 29.5);
+      /* verified synthesis — voiceover: "confidence rises from 0.72 to 0.94..." ~80s */
+      tl.from("#s4-final", { opacity: 0, y: 16, duration: 0.5, ease: "power3.out" }, T3 + 32);
+      /* HITL — voiceover: "pauses for human confirmation..." ~83s */
+      tl.from("#s4-hitl", { opacity: 0, duration: 0.4, ease: "power2.out" }, T3 + 36);
+      tl.to("#s4-hitl", { opacity: 0.4, duration: 0.8, ease: "sine.inOut", yoyo: true, repeat: 2 }, T3 + 37);
+      /* confirm — voiceover: "critical requirement in pharma, forensics..." ~86s */
+      tl.from("#s4-confirm", { opacity: 0, x: -20, duration: 0.4, ease: "power3.out" }, T3 + 40);
+
+      /* =================== T4: SCENE 4 → 5 (94.5s) =================== */
+      var T4 = 94.5;
+      tl.to("#scene4", { filter: "blur(12px)", scale: 1.04, opacity: 0, duration: 0.5, ease: "power2.inOut" }, T4);
+      tl.fromTo("#scene5",
+        { filter: "blur(12px)", scale: 0.96, opacity: 0 },
+        { filter: "blur(0px)", scale: 1, opacity: 1, duration: 0.5, ease: "power2.inOut" }, T4 + 0.1);
+
+      /* =================== SCENE 5: INNOVATION (95–120s) =================== */
+      tl.from("#s5-label",  { opacity: 0, y: 20, duration: 0.4, ease: "power3.out" }, T4 + 0.4);
+      tl.from("#s5-header", { opacity: 0, y: 30, duration: 0.5, ease: "power3.out" }, T4 + 0.7);
+      tl.from("#s5-panelA", { opacity: 0, x: -50, duration: 0.6, ease: "power3.out" }, T4 + 2);
+      tl.from("#s5-divider", { opacity: 0, scaleY: 0, duration: 0.4, ease: "power2.out" }, T4 + 2.5);
+      tl.from("#s5-panelB", { opacity: 0, x: 50, duration: 0.6, ease: "power3.out" }, T4 + 3);
+      /* Panel A tools stagger */
+      tl.from("#s5a-t1", { opacity: 0, x: -20, duration: 0.3, ease: "power2.out" }, T4 + 4.5);
+      tl.from("#s5a-t2", { opacity: 0, x: -20, duration: 0.3, ease: "power2.out" }, T4 + 4.8);
+      tl.from("#s5a-t3", { opacity: 0, x: -20, duration: 0.3, ease: "power2.out" }, T4 + 5.1);
+      tl.from("#s5a-t4", { opacity: 0, x: -20, duration: 0.3, ease: "power2.out" }, T4 + 5.4);
+      tl.from("#s5a-t5", { opacity: 0, x: -20, duration: 0.3, ease: "power2.out" }, T4 + 5.7);
+      /* active tools pulse */
+      tl.to("#s5a-t1", { scale: 1.04, duration: 0.2, ease: "power2.out", yoyo: true, repeat: 1 }, T4 + 6.5);
+      tl.to("#s5a-t2", { scale: 1.04, duration: 0.2, ease: "power2.out", yoyo: true, repeat: 1 }, T4 + 6.7);
+      tl.to("#s5a-t3", { scale: 1.04, duration: 0.2, ease: "power2.out", yoyo: true, repeat: 1 }, T4 + 6.9);
+      tl.from("#s5a-count", { opacity: 0, scale: 0.8, duration: 0.5, ease: "power3.out" }, T4 + 7.5);
+      /* Panel B tools stagger */
+      tl.from("#s5b-t1", { opacity: 0, x: 20, duration: 0.3, ease: "power2.out" }, T4 + 10);
+      tl.from("#s5b-t2", { opacity: 0, x: 20, duration: 0.3, ease: "power2.out" }, T4 + 10.3);
+      tl.from("#s5b-t3", { opacity: 0, x: 20, duration: 0.3, ease: "power2.out" }, T4 + 10.6);
+      tl.from("#s5b-t4", { opacity: 0, x: 20, duration: 0.3, ease: "power2.out" }, T4 + 10.9);
+      tl.from("#s5b-t5", { opacity: 0, x: 20, duration: 0.3, ease: "power2.out" }, T4 + 11.2);
+      tl.to("#s5b-t2", { scale: 1.04, duration: 0.2, ease: "power2.out", yoyo: true, repeat: 1 }, T4 + 12);
+      tl.to("#s5b-t3", { scale: 1.04, duration: 0.2, ease: "power2.out", yoyo: true, repeat: 1 }, T4 + 12.2);
+      tl.from("#s5b-count", { opacity: 0, scale: 0.8, duration: 0.5, ease: "power3.out" }, T4 + 13);
+      tl.from("#s5-footer", { opacity: 0, y: 20, duration: 0.5, ease: "power2.out" }, T4 + 16);
+
+      /* =================== T5: SCENE 5 → 6 (119.5s) =================== */
+      var T5 = 119.5;
+      tl.to("#scene5", { filter: "blur(12px)", scale: 1.04, opacity: 0, duration: 0.5, ease: "power2.inOut" }, T5);
+      tl.fromTo("#scene6",
+        { filter: "blur(12px)", scale: 0.96, opacity: 0 },
+        { filter: "blur(0px)", scale: 1, opacity: 1, duration: 0.5, ease: "power2.inOut" }, T5 + 0.1);
+
+      /* =================== SCENE 6: IMPACT (120–155s) =================== */
+      tl.from("#s6-label",  { opacity: 0, y: 20, duration: 0.4, ease: "power3.out" }, T5 + 0.4);
+      tl.from("#s6-header", { opacity: 0, y: 30, duration: 0.5, ease: "power3.out" }, T5 + 0.7);
+      tl.from("#s6-stat1", { opacity: 0, y: 40, duration: 0.5, ease: "power3.out" }, T5 + 2);
+      tl.from("#s6-stat2", { opacity: 0, y: 40, duration: 0.5, ease: "power3.out" }, T5 + 2.5);
+      tl.from("#s6-stat3", { opacity: 0, y: 40, duration: 0.5, ease: "power3.out" }, T5 + 3);
+      /* stat cards ambient pulse */
+      tl.to("#s6-stat1", { y: -4, duration: 2, ease: "sine.inOut", yoyo: true, repeat: 5 }, T5 + 4);
+      tl.to("#s6-stat2", { y: -4, duration: 2, ease: "sine.inOut", yoyo: true, repeat: 5, delay: 0.3 }, T5 + 4);
+      tl.to("#s6-stat3", { y: -4, duration: 2, ease: "sine.inOut", yoyo: true, repeat: 5, delay: 0.6 }, T5 + 4);
+      /* timeline: progress first, then node */
+      tl.to("#s6-progress", { width: "33%", duration: 0.6, ease: "power2.out" }, T5 + 8);
+      tl.from("#s6-n1", { opacity: 0, y: 30, duration: 0.5, ease: "power3.out" }, T5 + 8.8);
+      tl.to("#s6-progress", { width: "66%", duration: 0.6, ease: "power2.out" }, T5 + 11);
+      tl.from("#s6-n2", { opacity: 0, y: 30, duration: 0.5, ease: "power3.out" }, T5 + 11.8);
+      tl.to("#s6-progress", { width: "100%", duration: 0.6, ease: "power2.out" }, T5 + 14);
+      tl.from("#s6-n3", { opacity: 0, y: 30, duration: 0.5, ease: "power3.out" }, T5 + 14.8);
+      tl.from("#s6-bottom", { opacity: 0, y: 24, duration: 0.6, ease: "power3.out" }, T5 + 18);
+
+      /* =================== T6: SCENE 6 → 7 (154.5s) =================== */
+      var T6 = 154.5;
+      tl.to("#scene6", { filter: "blur(12px)", scale: 1.04, opacity: 0, duration: 0.5, ease: "power2.inOut" }, T6);
+      tl.fromTo("#scene7",
+        { filter: "blur(12px)", scale: 0.96, opacity: 0 },
+        { filter: "blur(0px)", scale: 1, opacity: 1, duration: 0.5, ease: "power2.inOut" }, T6 + 0.1);
+
+      /* =================== SCENE 7: CLOSING (155–180s) =================== */
+      tl.from("#s7-card", { opacity: 0, y: 40, duration: 0.6, ease: "power3.out" }, T6 + 0.5);
+      tl.from("#s7-i1", { opacity: 0, x: -30, duration: 0.35, ease: "power2.out" }, T6 + 1.2);
+      tl.from("#s7-i2", { opacity: 0, x: -30, duration: 0.35, ease: "power2.out" }, T6 + 1.6);
+      tl.from("#s7-i3", { opacity: 0, x: -30, duration: 0.35, ease: "power2.out" }, T6 + 2.0);
+      tl.from("#s7-i4", { opacity: 0, x: -30, duration: 0.35, ease: "power2.out" }, T6 + 2.4);
+      tl.from("#s7-github",  { opacity: 0, y: 20, duration: 0.5, ease: "power2.out" }, T6 + 4);
+      tl.from("#s7-tagline", { opacity: 0, y: 30, duration: 0.7, ease: "power3.out" }, T6 + 6);
+      tl.from("#s7-thanks",  { opacity: 0, scale: 0.85, duration: 0.8, ease: "power3.out" }, T6 + 9);
+      /* ambient: thanks slow scale */
+      tl.to("#s7-thanks", { scale: 1.04, duration: 12, ease: "power1.inOut" }, T6 + 10);
+
+      /* =================== FINAL FADE TO BLACK =================== */
+      tl.to("#blackout", { opacity: 1, duration: 2, ease: "power2.in" }, 176);
+
+      window.__timelines["main"] = tl;
+    </script>
+  </body>
+</html>
