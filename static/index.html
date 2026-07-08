@@ -132,6 +132,8 @@ body {
   border-right: 1px solid var(--border-subtle);
   background: rgba(7, 11, 20, 0.35);
 }
+/* 关键：禁止 flex 压缩子卡片——内容超高时让面板滚动，而不是把卡片压扁裁掉 */
+.left-panel > * { flex-shrink: 0; }
 
 .right-panel {
   grid-row: 2;
