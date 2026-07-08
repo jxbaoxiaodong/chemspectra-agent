@@ -122,7 +122,11 @@ AGENT_TOOLS = [
                     },
                     "sample_type": {
                         "type": "string",
-                        "description": "Sample type hint, e.g. polymer, pharmaceutical, mineral",
+                        "description": (
+                            "Sample type ONLY if the user explicitly stated it in the "
+                            "request or sample context. Never guess it and never infer "
+                            "it from the filename; omit this parameter when not stated."
+                        ),
                     },
                 },
             },
@@ -572,6 +576,34 @@ RULES:
 
     # ── 工具执行分发 ──────────────────────────────────────────────────────────
 
+    def _sanitize_tool_args(
+        self,
+        session: Session,
+        tool_name: str,
+        tool_args: dict,
+    ) -> tuple[dict, str | None]:
+        """Drop LLM-guessed priors the user never stated (provable honesty).
+
+        sample_type is echo-only metadata for the FTIR.fun API, but an invented
+        value ("polymer", a type read off the filename) would look like a fed-in
+        answer in the reasoning log. The host keeps it only when every word of
+        the hint appears in the user's own request/context text.
+        """
+        if tool_name != "search_library":
+            return tool_args, None
+        hint = str(tool_args.get("sample_type") or "").strip()
+        if not hint:
+            return tool_args, None
+        stated = f"{session.user_input} {session.sample_context}".lower()
+        if all(word in stated for word in hint.lower().split()):
+            return tool_args, None
+        cleaned = {k: v for k, v in tool_args.items() if k != "sample_type"}
+        note = (
+            f"Host gate: dropped sample_type='{hint}' — not stated by the user; "
+            "the library search runs without an unfounded prior."
+        )
+        return cleaned, note
+
     def _execute_tool(self, tool_name: str, tool_args: dict, session: Session) -> dict[str, Any]:
         """Dispatch active tools. No legacy tool aliases are supported."""
         fb64 = session.file_base64
@@ -1001,6 +1033,10 @@ After receiving tool results, provide your final chemical analysis and synthesis
                         tool_args = {}
                 else:
                     tool_args = raw_args
+
+                tool_args, sanitize_note = self._sanitize_tool_args(session, tool_name, tool_args)
+                if sanitize_note:
+                    self._emit(session, "log", {"level": "tool", "message": sanitize_note})
 
                 logger.info("Tool call [%d/%d]: %s(%s)", iteration, i + 1, tool_name, tool_args)
                 self._emit(session, "tool_call", {
@@ -1432,6 +1468,7 @@ tool results already answer the question, respond directly without new tools.
                 else:
                     tool_args = raw_args
 
+                tool_args, _followup_sanitize_note = self._sanitize_tool_args(session, tool_name, tool_args)
                 logger.info("Followup tool call: %s(%s)", tool_name, tool_args)
                 result = self._execute_tool(tool_name, tool_args, session)
                 followup_tools.append(tool_name)

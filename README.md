@@ -35,8 +35,8 @@ The key mechanic is the **level shift**: when near-tied candidates make a single
 The agent's reasoning runs on **Qwen (`qwen3.7-max`) via Alibaba Cloud Model Studio / DashScope**:
 
 - [`agent.py#L26-L27`](agent.py#L26-L27) — `dashscope` SDK import
-- [`agent.py#L527-L534`](agent.py#L527-L534) — `Generation.call(..., tools=AGENT_TOOLS, temperature=0)` — Qwen Function Calling selects the tools
-- [`agent.py#L412-L421`](agent.py#L412-L421) — streamed synthesis with visible reasoning (`enable_thinking`)
+- [`agent.py#L531-L538`](agent.py#L531-L538) — `Generation.call(..., tools=AGENT_TOOLS, temperature=0)` — Qwen Function Calling selects the tools
+- [`agent.py#L416-L425`](agent.py#L416-L425) — streamed synthesis with visible reasoning (`enable_thinking`)
 - [`requirements.txt`](requirements.txt) — `dashscope>=1.20.0`
 
 No agent framework is used — direct DashScope calls, easy to audit.
@@ -72,8 +72,8 @@ Real spectra from the FTIR.fun platform are included in [`samples/`](samples/):
 
 | File | Material | Verified verdict (this code, live API) |
 |---|---|---|
-| `abs_styrenic.dx` | Styrenic polymer | `entity` / **GREEN** — Top-1 0.9137, entity share 6.9%, direction confidence 100% |
-| `fatty_ester_20260707120623668587.csv` | Vegetable oil (fatty esters) | `library_direction` / **YELLOW** — Top-1 0.8182 with a 0.0055 gap, entity share 6.9%, ester-family direction 66.6% (10/15 candidates), verification plan generated |
+| `20260212214838789416377.dx` | Styrenic polymer | `entity` / **GREEN** — Top-1 0.9137, entity share 6.9%, direction confidence 100% |
+| `20260707120623668587.csv` | Vegetable oil (fatty esters) | `library_direction` / **YELLOW** — Top-1 0.8182 with a 0.0055 gap, entity share 6.9%, ester-family direction 66.6% (10/15 candidates), verification plan generated |
 | `20260620134005173506225.csv` | Unknown mixture | `uncertain_direction` / **RED** — Top-1 0.8029, direction confidence 36.4%, the agent refuses to guess |
 | `gelatin.csv` | Protein biopolymer | try it — protein-family candidates dominate the list |
 | `polypropylene.csv` | Polyolefin | try it — a noisy candidate tail dilutes the direction share |

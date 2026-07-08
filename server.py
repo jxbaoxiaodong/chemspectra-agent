@@ -857,7 +857,7 @@ let streamBuffers = {thinking: '', synthesis: ''};
 
 /* === Sample grid loader === */
 const SAMPLE_DESCRIPTIONS = {
-  'abs_styrenic.dx': 'ABS styrenic copolymer',
+  '20260212214838789416377.dx': 'Unknown Sample A',
   'gelatin.csv': 'Gelatin protein',
   'polypropylene.csv': 'Polypropylene (PP)',
   '20260620134005173506225.csv': 'Unknown mixture sample',
