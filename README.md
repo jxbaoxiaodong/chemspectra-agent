@@ -73,11 +73,12 @@ Real spectra from the FTIR.fun platform (shared under the platform's public-data
 | File | Material | Verified verdict (this code, live API) |
 |---|---|---|
 | `abs_styrenic.dx` | Styrenic polymer | `entity` / **GREEN** — Top-1 0.9137, entity share 6.9%, direction confidence 100% |
+| `fatty_ester_20260707120623668587.csv` | Vegetable oil (fatty esters) | `library_direction` / **YELLOW** — Top-1 0.8182 with a 0.0055 gap, entity share 6.9%, ester-family direction 66.6% (10/15 candidates), verification plan generated |
 | `20260620134005173506225.csv` | Unknown mixture | `uncertain_direction` / **RED** — Top-1 0.8029, direction confidence 36.4%, the agent refuses to guess |
 | `gelatin.csv` | Protein biopolymer | try it — protein-family candidates dominate the list |
 | `polypropylene.csv` | Polyolefin | try it — a noisy candidate tail dilutes the direction share |
 
-The RED case is also the reproducibility fixture: three consecutive runs return the identical verdict numbers (score 0.8029, confidence 0.6423).
+Together the first three cover all three verdict levels of the arbitration engine — GREEN, YELLOW and RED — on real data. The RED case is also the reproducibility fixture: three consecutive runs return the identical verdict numbers (score 0.8029, confidence 0.6423).
 
 ## Run it locally
 
