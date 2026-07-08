@@ -1,0 +1,8 @@
+# secrets / local state — never commit
+.env
+*.env
+audit_logs/
+session_logs/
+__pycache__/
+*.pyc
+.venv/

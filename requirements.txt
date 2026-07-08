@@ -1,0 +1,13 @@
+# ChemSpectra Agent — Dependencies
+# Python 3.10+
+
+# ── Alibaba Cloud: Qwen API (dashscope SDK) ──
+dashscope>=1.20.0
+
+# ── Web server ──
+fastapi>=0.115.0
+uvicorn[standard]>=0.30.0
+python-multipart>=0.0.12
+
+# ── HTTP client (FTIR.fun API) ──
+httpx>=0.27.0

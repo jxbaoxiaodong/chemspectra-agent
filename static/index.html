@@ -1,0 +1,1622 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>ChemSpectra Agent — AI Autopilot for FTIR Spectral Analysis</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+/* ============================================================
+   CHEMSpectra Agent — Design System
+   ============================================================ */
+:root {
+  --bg-deep: #050914;
+  --bg-base: #0A1020;
+  --bg-raised: #0E1629;
+  --bg-surface: rgba(14, 22, 41, 0.80);
+  --bg-surface-hover: rgba(20, 30, 52, 0.85);
+  --bg-overlay: rgba(5, 9, 20, 0.92);
+
+  --border-subtle: rgba(56, 189, 248, 0.06);
+  --border-default: rgba(56, 189, 248, 0.10);
+  --border-strong: rgba(56, 189, 248, 0.18);
+  --border-active: rgba(13, 148, 136, 0.35);
+
+  --text-primary: #EDF2F9;
+  --text-secondary: #94A9C9;
+  --text-muted: #556885;
+  --text-placeholder: #3D4F6B;
+
+  --teal: #0D9488;
+  --teal-dim: #0F766E;
+  --blue: #38BDF8;
+  --blue-dim: #0369A1;
+  --emerald: #34D399;
+  --emerald-dim: #047857;
+  --rose: #FB7185;
+  --rose-dim: #9F1239;
+  --purple: #A78BFA;
+  --purple-dim: #5B21B6;
+
+  --glow-teal: 0 0 30px rgba(13, 148, 136, 0.10);
+  --glow-blue: 0 0 30px rgba(56, 189, 248, 0.08);
+  --glow-emerald: 0 0 20px rgba(52, 211, 153, 0.08);
+
+  --r-xs: 4px; --r-sm: 8px; --r-md: 12px; --r-lg: 16px; --r-xl: 20px; --r-full: 9999px;
+  --t-fast: 150ms ease; --t-normal: 250ms ease; --t-slow: 400ms ease;
+}
+
+/* ============================================================
+   RESET & BASE
+   ============================================================ */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { height: 100%; overflow: hidden; }
+body {
+  font-family: 'Inter', system-ui, -apple-system, 'PingFang SC', 'Microsoft YaHei', sans-serif;
+  background: var(--bg-deep);
+  color: var(--text-primary);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+.bg-ambient {
+  position: fixed; inset: 0; pointer-events: none; z-index: 0;
+  background:
+    radial-gradient(ellipse 80% 50% at 20% 10%, rgba(13, 148, 136, 0.04) 0%, transparent 60%),
+    radial-gradient(ellipse 60% 50% at 80% 80%, rgba(56, 189, 248, 0.05) 0%, transparent 60%),
+    radial-gradient(ellipse 50% 40% at 50% 50%, rgba(167, 139, 250, 0.02) 0%, transparent 70%);
+}
+.bg-grid {
+  position: fixed; inset: 0; pointer-events: none; z-index: 0; opacity: 0.25;
+  background-image:
+    linear-gradient(rgba(56, 189, 248, 0.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(56, 189, 248, 0.03) 1px, transparent 1px);
+  background-size: 60px 60px;
+  mask-image: radial-gradient(ellipse 80% 60% at 50% 40%, black 30%, transparent 70%);
+}
+
+::-webkit-scrollbar { width: 5px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: rgba(56, 189, 248, 0.12); border-radius: var(--r-full); }
+::-webkit-scrollbar-thumb:hover { background: rgba(56, 189, 248, 0.22); }
+
+/* ============================================================
+   LAYOUT
+   ============================================================ */
+.app-shell {
+  position: relative; z-index: 1;
+  display: grid;
+  grid-template-columns: 440px 1fr;
+  grid-template-rows: 52px 1fr 32px;
+  height: 100vh;
+}
+
+.app-header {
+  grid-column: 1 / -1;
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 0 24px;
+  background: rgba(10, 16, 32, 0.85);
+  backdrop-filter: blur(20px) saturate(180%);
+  border-bottom: 1px solid var(--border-subtle);
+  z-index: 10;
+}
+.header-brand { display: flex; align-items: center; gap: 10px; }
+.header-logo {
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  padding: 4px 12px; gap: 1px;
+  border-radius: var(--r-sm);
+  background: linear-gradient(135deg, var(--teal), #0F766E);
+  box-shadow: 0 2px 12px rgba(13, 148, 136, 0.25);
+  position: relative; overflow: hidden;
+}
+.header-logo::after {
+  content: ''; position: absolute; inset: 0;
+  background: radial-gradient(circle at 30% 30%, rgba(255,255,255,0.2) 0%, transparent 60%);
+  pointer-events: none;
+}
+.header-logo-line1 {
+  font-size: 8px; font-weight: 700; letter-spacing: 0.6px;
+  color: rgba(255,255,255,0.95); text-transform: uppercase;
+  line-height: 1.2; white-space: nowrap;
+}
+.header-logo-line2 {
+  font-size: 7.5px; font-weight: 600; letter-spacing: 0.3px;
+  color: rgba(255,255,255,0.75); text-transform: uppercase;
+  line-height: 1.2; white-space: nowrap;
+}
+.header-title {
+  font-size: 17px; font-weight: 700;
+  background: linear-gradient(135deg, var(--text-primary) 0%, #B0C4DE 100%);
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+  background-clip: text;
+  letter-spacing: -0.3px;
+}
+.header-badges { display: flex; align-items: center; gap: 10px; }
+.badge {
+  font-size: 10.5px; font-weight: 600; padding: 4px 12px;
+  border-radius: var(--r-full); letter-spacing: 0.3px;
+  white-space: nowrap;
+}
+.badge-qwen { background: rgba(56, 189, 248, 0.10); color: var(--blue); border: 1px solid rgba(56, 189, 248, 0.18); }
+
+
+.left-panel {
+  grid-row: 2;
+  overflow-y: auto; overflow-x: hidden;
+  padding: 16px 16px 8px;
+  display: flex; flex-direction: column; gap: 12px;
+  border-right: 1px solid var(--border-subtle);
+  background: rgba(5, 9, 20, 0.30);
+}
+
+.right-panel {
+  grid-row: 2;
+  display: flex; flex-direction: column;
+  background: rgba(5, 9, 20, 0.45);
+  overflow: hidden;
+}
+
+.app-footer {
+  grid-column: 1 / -1;
+  display: flex; align-items: center; justify-content: center; gap: 12px;
+  font-size: 10px; color: var(--text-muted);
+  border-top: 1px solid var(--border-subtle);
+  background: rgba(10, 16, 32, 0.7);
+  backdrop-filter: blur(12px);
+  z-index: 10;
+}
+.app-footer a { color: var(--text-secondary); text-decoration: none; transition: color var(--t-fast); }
+.app-footer a:hover { color: var(--teal); }
+.footer-sep { color: var(--border-strong); }
+
+/* ============================================================
+   CARDS
+   ============================================================ */
+.card {
+  background: var(--bg-surface);
+  backdrop-filter: blur(16px) saturate(160%);
+  border: 1px solid var(--border-default);
+  border-radius: var(--r-lg);
+  padding: 16px;
+  transition: border-color var(--t-normal), box-shadow var(--t-normal);
+}
+.card:hover { border-color: var(--border-strong); }
+.card-header {
+  display: flex; align-items: center; justify-content: space-between;
+  margin-bottom: 12px;
+}
+.card-title {
+  font-size: 11px; font-weight: 700; text-transform: uppercase;
+  letter-spacing: 0.8px; color: var(--text-secondary);
+  display: flex; align-items: center; gap: 8px;
+}
+.card-title::before {
+  content: ''; width: 3px; height: 14px; border-radius: 2px;
+  background: var(--teal); display: inline-block;
+}
+.card-hint { font-size: 10px; color: var(--text-muted); }
+
+/* Details (collapsible demo) */
+details.demo-details { padding: 0; overflow: hidden; }
+details.demo-details > summary {
+  list-style: none; cursor: pointer;
+  padding: 16px 16px 0;
+  display: flex; align-items: center; justify-content: space-between;
+}
+details.demo-details > summary::-webkit-details-marker { display: none; }
+details.demo-details > summary::marker { display: none; content: ""; }
+details.demo-details > summary .card-title { margin-bottom: 0; }
+.demo-hint {
+  font-size: 10px; color: var(--text-muted); margin: 4px 0 0; line-height: 1.4;
+  font-weight: 400; text-transform: none; letter-spacing: 0;
+}
+details.demo-details > summary .expand-icon {
+  font-size: 14px; color: var(--text-muted); transition: transform var(--t-normal);
+  line-height: 1;
+}
+details.demo-details[open] > summary .expand-icon { transform: rotate(180deg); }
+details.demo-details > .details-body { padding: 12px 16px 16px; }
+
+/* ============================================================
+   FORM ELEMENTS
+   ============================================================ */
+.input-label {
+  display: block; font-size: 10.5px; font-weight: 600; color: var(--text-secondary);
+  margin-bottom: 5px; text-transform: uppercase; letter-spacing: 0.4px;
+}
+.input-label sub { font-weight: 400; text-transform: none; color: var(--text-muted); letter-spacing: 0; }
+
+input[type="file"] {
+  width: 100%; padding: 20px 14px;
+  background: rgba(5, 9, 20, 0.5);
+  border: 2px dashed var(--border-default);
+  border-radius: var(--r-md);
+  color: var(--text-secondary); font-size: 12px; cursor: pointer;
+  transition: all var(--t-normal);
+  text-align: center;
+}
+input[type="file"]:hover { border-color: var(--border-active); background: rgba(13, 148, 136, 0.03); }
+input[type="file"]::file-selector-button { display: none; }
+
+textarea, select {
+  width: 100%; padding: 10px 12px;
+  background: rgba(5, 9, 20, 0.5);
+  border: 1px solid var(--border-default);
+  border-radius: var(--r-sm);
+  color: var(--text-primary); font-size: 12.5px;
+  transition: border-color var(--t-fast);
+  font-family: inherit;
+}
+textarea:focus, select:focus { outline: none; border-color: var(--teal); }
+textarea { resize: vertical; min-height: 44px; }
+select { cursor: pointer; }
+
+/* ---- Buttons ---- */
+.btn {
+  display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+  border: none; padding: 10px 20px; border-radius: var(--r-sm);
+  font-size: 12.5px; font-weight: 600; cursor: pointer;
+  transition: all var(--t-fast);
+  font-family: inherit; white-space: nowrap;
+}
+.btn:disabled { opacity: 0.35; cursor: not-allowed; transform: none !important; }
+.btn-primary {
+  width: 100%;
+  background: linear-gradient(135deg, var(--teal), #0F766E);
+  color: #0A0F1E; letter-spacing: 0.3px;
+  box-shadow: 0 2px 16px rgba(13, 148, 136, 0.20);
+}
+.btn-primary:hover:not(:disabled) { transform: translateY(-1px); box-shadow: 0 4px 24px rgba(13, 148, 136, 0.30); }
+.btn-primary:active:not(:disabled) { transform: translateY(0); }
+.btn-accept {
+  flex: 1;
+  background: linear-gradient(135deg, var(--emerald), #059669);
+  color: #fff;
+  box-shadow: 0 2px 12px rgba(52, 211, 153, 0.18);
+}
+.btn-accept:hover:not(:disabled) { transform: translateY(-1px); box-shadow: 0 4px 20px rgba(52, 211, 153, 0.28); }
+.btn-reset {
+  flex: 1;
+  background: transparent;
+  border: 1px solid var(--border-strong);
+  color: var(--text-secondary);
+}
+.btn-reset:hover:not(:disabled) { border-color: var(--rose); color: var(--rose); background: rgba(251, 113, 133, 0.06); }
+.btn-sm { padding: 7px 14px; font-size: 11px; }
+.btn-ghost { background: transparent; border: 1px solid var(--border-default); color: var(--text-secondary); }
+.btn-ghost:hover:not(:disabled) { border-color: var(--border-strong); color: var(--text-primary); }
+
+/* ============================================================
+   SAMPLE CARDS
+   ============================================================ */
+.sample-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.sample-card {
+  display: flex; align-items: center; gap: 10px;
+  padding: 12px; border-radius: var(--r-md);
+  background: rgba(5, 9, 20, 0.4);
+  border: 1px solid var(--border-subtle);
+  cursor: pointer; transition: all var(--t-normal);
+  text-align: left; font-family: inherit; color: inherit;
+}
+.sample-card:hover {
+  background: rgba(13, 148, 136, 0.05);
+  border-color: var(--border-active);
+  transform: translateY(-2px);
+  box-shadow: var(--glow-teal);
+}
+.sample-card:active { transform: translateY(0); }
+.sample-dot {
+  width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0;
+}
+.sample-dot.styrenic { background: var(--purple); }
+.sample-dot.protein { background: var(--emerald); }
+.sample-dot.polyolefin { background: var(--blue); }
+.sample-dot.unknown { background: var(--rose); }
+.sample-meta { display: flex; flex-direction: column; gap: 1px; overflow: hidden; }
+.sample-name { font-size: 12px; font-weight: 600; color: var(--text-primary); }
+.sample-file { font-size: 10px; color: var(--text-muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+/* ============================================================
+   PIPELINE
+   ============================================================ */
+.pipeline { position: relative; padding-left: 8px; }
+.pipeline-step {
+  position: relative;
+  display: flex; align-items: flex-start; gap: 12px;
+  padding: 7px 0 7px 16px;
+  font-size: 12px; color: var(--text-muted);
+  transition: all var(--t-normal);
+}
+.pipeline-step::before {
+  content: '';
+  position: absolute; left: 4px; top: 0; bottom: 0;
+  width: 1px; background: var(--border-subtle);
+}
+.pipeline-step:first-child::before { top: 50%; }
+.pipeline-step:last-child::before { bottom: 50%; }
+.pipeline-dot {
+  position: relative; z-index: 1;
+  width: 20px; height: 20px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 9px; font-weight: 700; flex-shrink: 0;
+  background: rgba(255,255,255,0.04);
+  border: 1.5px solid var(--border-default);
+  color: var(--text-muted);
+  transition: all var(--t-slow);
+}
+.pipeline-step.active { color: var(--teal); }
+.pipeline-step.active .pipeline-dot {
+  background: rgba(13, 148, 136, 0.12);
+  border-color: var(--teal);
+  color: var(--teal);
+  box-shadow: 0 0 12px rgba(13, 148, 136, 0.25);
+  animation: dotPulse 2s infinite;
+}
+.pipeline-step.done { color: var(--emerald); }
+.pipeline-step.done .pipeline-dot {
+  background: rgba(52, 211, 153, 0.12);
+  border-color: var(--emerald);
+  color: var(--emerald);
+}
+.pipeline-step.done::before { background: rgba(52, 211, 153, 0.15); }
+.pipeline-step.error { color: var(--rose); }
+.pipeline-step.error .pipeline-dot {
+  background: rgba(251, 113, 133, 0.12);
+  border-color: var(--rose);
+  color: var(--rose);
+}
+.pipeline-label { padding-top: 2px; line-height: 1.4; }
+
+@keyframes dotPulse {
+  0%, 100% { box-shadow: 0 0 8px rgba(245, 158, 11, 0.2); }
+  50% { box-shadow: 0 0 20px rgba(13, 148, 136, 0.45); }
+}
+
+/* ============================================================
+   RESULTS
+   ============================================================ */
+.verdict-badge {
+  display: inline-flex; align-items: center; gap: 5px;
+  padding: 4px 12px; border-radius: var(--r-full);
+  font-size: 10.5px; font-weight: 700; text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+.verdict-badge.green { background: rgba(52, 211, 153, 0.10); color: var(--emerald); border: 1px solid rgba(52, 211, 153, 0.2); }
+.verdict-badge.yellow { background: rgba(13, 148, 136, 0.10); color: var(--teal); border: 1px solid rgba(245, 158, 11, 0.2); }
+.verdict-badge.red { background: rgba(251, 113, 133, 0.10); color: var(--rose); border: 1px solid rgba(251, 113, 133, 0.2); }
+.verdict-badge.clarification { background: rgba(167, 139, 250, 0.10); color: var(--purple); border: 1px solid rgba(167, 139, 250, 0.2); }
+
+.best-match-card {
+  background: rgba(13, 148, 136, 0.03);
+  border: 1px solid rgba(13, 148, 136, 0.10);
+  border-radius: var(--r-md); padding: 14px;
+  margin-bottom: 12px;
+}
+.match-compound {
+  font-size: 18px; font-weight: 700; color: var(--text-primary);
+  line-height: 1.3; word-break: break-word;
+}
+.match-meta {
+  display: flex; align-items: center; gap: 10px; margin-top: 6px;
+  font-size: 12px; color: var(--text-secondary); flex-wrap: wrap;
+}
+.match-meta-sep { color: var(--text-muted); }
+.match-score {
+  font-weight: 700; color: var(--teal);
+  background: rgba(13, 148, 136, 0.08);
+  padding: 2px 8px; border-radius: var(--r-xs);
+}
+
+.candidate-row {
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 7px 0px;
+  border-bottom: 1px solid rgba(255,255,255,0.025);
+  font-size: 12px;
+}
+.candidate-row:last-child { border-bottom: none; }
+.candidate-name { font-weight: 500; color: var(--text-primary); }
+.candidate-cas { color: var(--text-muted); font-size: 10.5px; }
+.candidate-score {
+  font-weight: 600; color: var(--text-secondary);
+  font-family: 'JetBrains Mono', monospace; font-size: 11px;
+}
+
+.reasoning-box {
+  background: rgba(5, 9, 20, 0.5);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--r-sm);
+  padding: 10px 12px; margin: 8px 0;
+  font-size: 12px; line-height: 1.65; color: var(--text-secondary);
+}
+.reasoning-box strong { color: var(--text-primary); }
+
+.section-divider { border: none; border-top: 1px solid var(--border-subtle); margin: 12px 0; }
+
+.section-label-sm {
+  font-size: 10px; font-weight: 700; text-transform: uppercase;
+  letter-spacing: 0.5px; color: var(--text-muted);
+  margin-bottom: 6px;
+}
+
+.tool-tags { display: flex; gap: 5px; flex-wrap: wrap; }
+.tool-tag {
+  font-size: 10px; padding: 3px 10px;
+  border-radius: var(--r-full);
+  background: rgba(56, 189, 248, 0.08);
+  color: var(--blue);
+  border: 1px solid rgba(56, 189, 248, 0.15);
+  white-space: nowrap;
+}
+.tool-tag.verify { background: rgba(167, 139, 250, 0.08); color: var(--purple); border-color: rgba(167, 139, 250, 0.15); }
+
+.flag-item {
+  display: flex; align-items: flex-start; gap: 6px;
+  font-size: 11px; color: var(--text-secondary); padding: 2px 0;
+}
+.flag-dot {
+  width: 5px; height: 5px; border-radius: 50%;
+  background: var(--teal); margin-top: 5px; flex-shrink: 0;
+}
+
+.status-bar {
+  display: flex; align-items: center; gap: 8px;
+  padding: 6px 10px; border-radius: var(--r-sm);
+  font-size: 10.5px; font-weight: 600; margin-bottom: 8px;
+}
+.status-bar.green { background: rgba(52, 211, 153, 0.06); color: var(--emerald); border: 1px solid rgba(52, 211, 153, 0.12); }
+.status-bar.yellow { background: rgba(245, 158, 11, 0.06); color: var(--teal); border: 1px solid rgba(13, 148, 136, 0.12); }
+.status-bar.red { background: rgba(251, 113, 133, 0.06); color: var(--rose); border: 1px solid rgba(251, 113, 133, 0.12); }
+
+/* ---- Evidence Arbitration stat grid (judge-facing hero numbers) ---- */
+.arb-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin: 8px 0; }
+.arb-stat {
+  background: rgba(5, 9, 20, 0.55);
+  border: 1px solid var(--border-default);
+  border-radius: var(--r-md); padding: 12px 14px;
+}
+.arb-stat-label {
+  font-size: 9.5px; font-weight: 700; text-transform: uppercase;
+  letter-spacing: 0.6px; color: var(--text-muted); margin-bottom: 4px;
+}
+.arb-stat-value {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 30px; font-weight: 600; line-height: 1.1;
+}
+.arb-stat-value.low { color: var(--rose); }
+.arb-stat-value.mid { color: #FACC15; }
+.arb-stat-value.high { color: var(--emerald); }
+.arb-stat-note { font-size: 10.5px; color: var(--text-secondary); margin-top: 4px; line-height: 1.45; }
+
+/* ---- Deterministic check rows ---- */
+.check-row {
+  display: flex; gap: 8px; align-items: flex-start;
+  padding: 5px 0; font-size: 11.5px;
+  border-bottom: 1px solid rgba(255,255,255,0.02);
+}
+.check-row:last-child { border-bottom: none; }
+.check-row.veto { background: rgba(251, 113, 133, 0.05); border-radius: var(--r-xs); padding: 5px 6px; }
+.check-chip {
+  flex-shrink: 0; font-size: 9px; font-weight: 700;
+  padding: 2px 7px; border-radius: var(--r-full);
+  letter-spacing: 0.5px; margin-top: 1px;
+}
+.check-chip.pass { background: rgba(52, 211, 153, 0.10); color: var(--emerald); }
+.check-chip.fail { background: rgba(251, 113, 133, 0.12); color: var(--rose); }
+.check-chip.na { background: rgba(148, 169, 201, 0.08); color: var(--text-muted); }
+.check-name { font-weight: 600; color: var(--text-primary); }
+.check-detail { color: var(--text-secondary); line-height: 1.5; }
+.confidence-formula {
+  font-family: 'JetBrains Mono', monospace; font-size: 11px;
+  color: #FACC15; background: rgba(250, 204, 21, 0.05);
+  border: 1px solid rgba(250, 204, 21, 0.12);
+  border-radius: var(--r-sm); padding: 8px 10px; margin-top: 8px;
+}
+
+/* ---- Literature-backed peak assignments ---- */
+.peak-row {
+  display: grid; grid-template-columns: 64px 1fr auto;
+  gap: 8px; align-items: baseline;
+  padding: 4px 0; font-size: 11.5px;
+  border-bottom: 1px solid rgba(255,255,255,0.02);
+}
+.peak-row:last-child { border-bottom: none; }
+.peak-pos { font-family: 'JetBrains Mono', monospace; color: var(--blue); font-weight: 600; }
+.peak-assign { color: var(--text-secondary); }
+.doi-link { font-size: 10px; color: var(--purple); text-decoration: none; white-space: nowrap; }
+.doi-link:hover { text-decoration: underline; }
+
+/* ---- Quality warnings ---- */
+.quality-warn { display: flex; gap: 6px; font-size: 11.5px; color: #FACC15; padding: 3px 0; line-height: 1.5; }
+
+/* ============================================================
+   THINKING PANEL (Right)
+   ============================================================ */
+.thinking-topbar {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 12px 20px;
+  border-bottom: 1px solid var(--border-subtle);
+  background: rgba(5, 9, 20, 0.5);
+  flex-shrink: 0;
+}
+.thinking-title-group { display: flex; align-items: center; gap: 10px; }
+.thinking-dot {
+  width: 8px; height: 8px; border-radius: 50%;
+  background: var(--border-strong);
+  transition: all var(--t-normal);
+}
+.thinking-dot.active { background: var(--teal); box-shadow: 0 0 8px rgba(245, 158, 11, 0.5); animation: dotBlink 1.2s infinite; }
+.thinking-dot.done { background: var(--emerald); }
+.thinking-title {
+  font-size: 12px; font-weight: 700; text-transform: uppercase;
+  letter-spacing: 0.6px; color: var(--text-secondary);
+}
+.thinking-status { font-size: 10.5px; color: var(--text-muted); }
+
+@keyframes dotBlink { 0%, 100% { opacity: 1; } 50% { opacity: 0.25; } }
+
+.thinking-activity-row {
+  display: flex; gap: 6px; flex-wrap: wrap;
+  padding: 8px 20px;
+  border-bottom: 1px solid rgba(56, 189, 248, 0.04);
+  flex-shrink: 0; min-height: 32px; align-items: center;
+}
+.activity-badge {
+  display: inline-flex; align-items: center; gap: 4px;
+  padding: 3px 10px; border-radius: var(--r-full);
+  font-size: 10.5px; font-weight: 600;
+  animation: fadeInUp 0.3s ease;
+}
+.activity-badge.tool { background: rgba(56, 189, 248, 0.08); color: var(--blue); border: 1px solid rgba(56, 189, 248, 0.15); }
+.activity-badge.verify { background: rgba(167, 139, 250, 0.08); color: var(--purple); border: 1px solid rgba(167, 139, 250, 0.15); }
+
+@keyframes fadeInUp { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: translateY(0); } }
+
+.thinking-log {
+  flex: 1; overflow-y: auto; padding: 12px 20px;
+  font-family: 'JetBrains Mono', 'SF Mono', 'Cascadia Code', 'Consolas', monospace;
+  font-size: 12px; line-height: 1.7;
+  background: linear-gradient(180deg, rgba(5, 9, 20, 0.2) 0%, rgba(5, 9, 20, 0.5) 100%);
+}
+.log-entry {
+  display: grid; grid-template-columns: 48px 56px 1fr;
+  gap: 8px; align-items: baseline;
+  padding: 4px 0;
+  border-bottom: 1px solid rgba(255,255,255,0.015);
+  animation: fadeIn 0.2s ease;
+}
+.log-entry:last-child { border-bottom: none; }
+.log-time { color: #3D4F6B; font-size: 10px; white-space: nowrap; }
+.log-level {
+  font-size: 10px; font-weight: 700; text-transform: uppercase;
+  letter-spacing: 0.3px; white-space: nowrap;
+}
+.log-body { color: #C8D6E5; word-break: break-word; white-space: pre-wrap; }
+
+.log-level.input { color: #64748B; }
+.log-level.phase { color: var(--teal); }
+.log-level.qwen { color: var(--blue); }
+.log-level.tool { color: var(--emerald); }
+.log-level.verify { color: var(--purple); }
+.log-level.confidence { color: #FACC15; }
+.log-level.synthesis { color: #6EE7B7; }
+
+.thinking-empty {
+  flex: 1; display: flex; flex-direction: column;
+  align-items: center; justify-content: center; gap: 14px;
+  padding: 48px;
+}
+.thinking-empty-icon {
+  width: 72px; height: 72px; border-radius: 50%;
+  background: rgba(56, 189, 248, 0.04);
+  border: 1px solid var(--border-default);
+  display: flex; align-items: center; justify-content: center;
+  opacity: 0.5;
+}
+.thinking-empty-icon::after {
+  content: '';
+  width: 20px; height: 20px;
+  border: 2px solid var(--text-muted);
+  border-radius: 50%;
+  border-top-color: transparent;
+  animation: spin 2s linear infinite;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+.thinking-empty-text {
+  font-size: 13px; color: var(--text-muted); text-align: center;
+  line-height: 1.6; max-width: 260px;
+}
+
+/* ============================================================
+   CHAT
+   ============================================================ */
+.chat-section { margin-top: 8px; padding-top: 12px; border-top: 1px solid var(--border-subtle); }
+.chat-messages { max-height: 180px; overflow-y: auto; margin-bottom: 8px; }
+.chat-bubble { padding: 8px 12px; margin: 4px 0; border-radius: var(--r-sm); font-size: 12px; line-height: 1.6; }
+.chat-bubble.user { background: rgba(56, 189, 248, 0.06); border: 1px solid rgba(56, 189, 248, 0.10); }
+.chat-bubble.agent { background: rgba(13, 148, 136, 0.04); border: 1px solid rgba(13, 148, 136, 0.08); }
+.chat-input-row { display: flex; gap: 6px; }
+.chat-input-row input {
+  flex: 1; padding: 8px 12px;
+  background: rgba(5, 9, 20, 0.5);
+  border: 1px solid var(--border-default);
+  border-radius: var(--r-sm);
+  color: var(--text-primary); font-size: 12px;
+  font-family: inherit;
+}
+.chat-input-row input:focus { outline: none; border-color: var(--teal); }
+.chat-input-row input::placeholder { color: var(--text-placeholder); }
+
+/* ============================================================
+   REPORT
+   ============================================================ */
+.report-body {
+  background: rgba(5, 9, 20, 0.6);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--r-sm);
+  padding: 14px; margin: 10px 0;
+  font-size: 12px; line-height: 1.8; color: var(--text-secondary);
+  white-space: pre-wrap; word-break: break-word;
+  max-height: 500px; overflow-y: auto;
+}
+
+/* ============================================================
+   MARKDOWN
+   ============================================================ */
+.md-content { font-size: 12px; line-height: 1.65; color: var(--text-secondary); }
+.md-content h3, .md-content h4 { color: var(--text-primary); font-size: 13px; margin: 10px 0 4px; }
+.md-content h3:first-child, .md-content h4:first-child { margin-top: 0; }
+.md-content p { margin: 4px 0; }
+.md-content ul, .md-content ol { margin: 4px 0; padding-left: 18px; }
+.md-content li { margin: 2px 0; }
+.md-content strong { color: var(--text-primary); }
+.md-content hr { border: none; border-top: 1px solid var(--border-subtle); margin: 8px 0; }
+.md-content code {
+  background: rgba(56, 189, 248, 0.08); color: var(--blue);
+  padding: 1px 5px; border-radius: var(--r-xs); font-size: 11px;
+  font-family: 'JetBrains Mono', monospace;
+}
+.md-content table { width: 100%; border-collapse: collapse; margin: 8px 0; font-size: 11px; }
+.md-content th, .md-content td { border: 1px solid var(--border-subtle); padding: 5px 8px; text-align: left; }
+.md-content th { background: rgba(56, 189, 248, 0.04); color: var(--text-primary); font-weight: 600; }
+.md-content td { color: var(--text-secondary); }
+
+/* ============================================================
+   UTILITY
+   ============================================================ */
+.hidden { display: none !important; }
+.fade-in { animation: fadeIn 0.35s ease; }
+@keyframes fadeIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
+
+/* ============================================================
+   RESPONSIVE
+   ============================================================ */
+@media (max-width: 1024px) {
+  .app-shell { grid-template-columns: 1fr; grid-template-rows: 52px auto 1fr 32px; }
+  .left-panel { grid-row: 2; border-right: none; border-bottom: 1px solid var(--border-subtle); max-height: 55vh; }
+  .right-panel { grid-row: 3; }
+  .sample-grid { grid-template-columns: 1fr 1fr; }
+}
+</style>
+</head>
+<body>
+
+<div class="bg-ambient"></div>
+<div class="bg-grid"></div>
+
+<div class="app-shell">
+
+  <!-- HEADER -->
+  <header class="app-header">
+    <div class="header-brand">
+      <div class="header-logo">
+        <span class="header-logo-line1">Qwen Cloud Hackathon</span>
+        <span class="header-logo-line2">Track 4</span>
+      </div>
+      <span class="header-title">ChemSpectra Agent</span>
+    </div>
+    <div class="header-badges">
+      <span class="badge badge-qwen">Qwen-3.7-Max</span>
+      <span class="badge badge-qwen" style="background:rgba(16,185,129,0.12);color:#10b981">FTIR.fun · 130K spectra</span>
+    </div>
+  </header>
+
+  <!-- LEFT PANEL -->
+  <aside class="left-panel" id="leftPanel">
+
+    <!-- Demo Samples (collapsed by default) -->
+    <details class="card demo-details" id="demoCard">
+      <summary>
+        <div>
+          <span class="card-title">Demo Samples</span>
+          <p class="demo-hint">Click a sample to load, then press Analyze to start.</p>
+        </div>
+        <span class="expand-icon">&#9660;</span>
+      </summary>
+      <div class="details-body">
+        <div class="sample-grid" id="sampleGrid"></div>
+      </div>
+    </details>
+
+    <!-- Upload -->
+    <div class="card" id="uploadCard">
+      <div class="card-header">
+        <span class="card-title">Upload Spectrum</span>
+      </div>
+      <form id="uploadForm" enctype="multipart/form-data">
+        <label class="input-label">Spectrum File <sub>CSV / JCAMP-DX / TXT / JSON</sub></label>
+        <input type="file" name="file" id="specFile" accept=".csv,.jdx,.dx,.txt,.json,.spa,.spc">
+        <label class="input-label" style="margin-top:10px">Sample Context <sub>optional, max 200 chars</sub></label>
+        <textarea name="context" id="sampleCtx" rows="2" maxlength="200" placeholder="e.g. Polymer film, suspected PE/PP blend">Unknown sample, identify composition</textarea>
+        <input type="hidden" name="analysis_type" value="identify">
+        <button type="submit" class="btn btn-primary" id="submitBtn" style="margin-top:10px">
+          &#128269; Analyze
+        </button>
+      </form>
+    </div>
+
+    <!-- Pipeline -->
+    <div class="card hidden" id="pipelineCard">
+      <div class="card-header">
+        <span class="card-title">Pipeline</span>
+      </div>
+      <div class="pipeline" id="pipeline">
+        <div class="pipeline-step pending" id="ps1">
+          <div class="pipeline-dot">1</div>
+          <span class="pipeline-label">Reasoning &amp; Tool Selection</span>
+        </div>
+        <div class="pipeline-step pending" id="ps2">
+          <div class="pipeline-dot">2</div>
+          <span class="pipeline-label">Executing FTIR.fun Tools</span>
+        </div>
+        <div class="pipeline-step pending" id="ps3">
+          <div class="pipeline-dot">3</div>
+          <span class="pipeline-label">Synthesizing Results</span>
+        </div>
+        <div class="pipeline-step pending" id="ps4">
+          <div class="pipeline-dot">4</div>
+          <span class="pipeline-label">Verification Plan → Human Decision</span>
+        </div>
+        <div class="pipeline-step pending" id="ps5">
+          <div class="pipeline-dot">5</div>
+          <span class="pipeline-label">Generating Final Report</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Results -->
+    <div class="card hidden fade-in" id="resultsCard">
+      <div class="card-header">
+        <span class="card-title">Results</span>
+        <div style="display:flex;align-items:center;gap:8px">
+          <span class="verdict-badge" id="verdictBadge"></span>
+          <span style="font-size:10px;color:var(--text-muted)" id="searchMode"></span>
+        </div>
+      </div>
+
+      <div class="best-match-card" id="bestMatchCard"></div>
+      <div class="reasoning-box md-content" id="reasoningText"></div>
+
+      <div id="decisionBlock" class="hidden">
+        <hr class="section-divider">
+        <div class="section-label-sm" style="color:var(--blue)">Evidence Arbitration — deterministic</div>
+        <div class="status-bar" id="decisionStatusBar"></div>
+        <div class="arb-grid" id="arbStats"></div>
+        <div class="reasoning-box md-content" id="decisionText"></div>
+        <hr class="section-divider">
+      </div>
+
+      <div id="qualityBlock" class="hidden" style="margin-bottom:10px">
+        <div class="section-label-sm" style="color:#FACC15">Spectrum Quality</div>
+        <div id="qualityList"></div>
+      </div>
+
+      <div class="section-label-sm">Candidates</div>
+      <div id="candidateList"></div>
+
+      <div id="cvBlock" class="hidden" style="margin-top:12px">
+        <hr class="section-divider">
+        <div class="section-label-sm" style="color:var(--purple)">Deterministic Rule Checks
+          <span style="color:var(--text-muted);font-weight:400;text-transform:none;letter-spacing:0"> — same input, same output</span>
+        </div>
+        <div id="cvChecks"></div>
+        <div class="confidence-formula hidden" id="confidenceFormula"></div>
+      </div>
+
+      <div id="peaksBlock" class="hidden" style="margin-top:12px">
+        <hr class="section-divider">
+        <div class="section-label-sm" style="color:var(--blue)">Peak Assignments
+          <span style="color:var(--text-muted);font-weight:400;text-transform:none;letter-spacing:0"> — literature-backed via FTIR.fun knowledge graph</span>
+        </div>
+        <div id="peaksList"></div>
+      </div>
+
+      <div id="toolsBlock" class="hidden" style="margin-top:10px">
+        <div class="section-label-sm">Tools Used</div>
+        <div class="tool-tags" id="toolsList"></div>
+      </div>
+
+      <div id="synthesisBlock" class="hidden" style="margin-top:10px">
+        <hr class="section-divider">
+        <div class="section-label-sm">AI Synthesis</div>
+        <div class="reasoning-box md-content" id="synthesisText"></div>
+      </div>
+
+      <div id="flagsBlock" class="hidden" style="margin-top:10px">
+        <div class="section-label-sm" style="color:var(--teal)">Flags</div>
+        <div id="flagsList"></div>
+      </div>
+
+      <div id="planBlock" class="hidden" style="margin-top:14px">
+        <hr class="section-divider">
+        <div style="display:flex;align-items:center;gap:6px;margin-bottom:6px">
+          <span style="font-size:14px">🧪</span>
+          <span style="font-size:13px;font-weight:600;color:var(--text-primary)">Next Steps for the Analyst</span>
+        </div>
+        <p style="font-size:12px;color:var(--text-muted);margin-bottom:6px;font-style:italic" id="planGoal"></p>
+        <ul style="font-size:12px;color:var(--text-secondary);padding-left:18px;line-height:2.0" id="planList"></ul>
+        <p style="font-size:11px;color:var(--text-muted);margin-top:8px;border-top:1px solid var(--border);padding-top:6px">
+          The agent identifies the evidence boundary. The analyst runs additional tests and makes the final call.
+        </p>
+      </div>
+
+      <!-- Chat -->
+      <div class="chat-section" id="chatSection">
+        <div class="chat-messages" id="chatMessages"></div>
+        <div class="chat-input-row">
+          <input type="text" id="chatInput" placeholder="Ask a follow-up question..." onkeydown="if(event.key==='Enter')sendChat()">
+          <button class="btn btn-ghost btn-sm" onclick="sendChat()">Send</button>
+        </div>
+      </div>
+
+      <div style="display:flex;gap:8px;margin-top:12px" id="confirmActions">
+        <button class="btn btn-accept" onclick="confirmResult()">Accept &amp; Generate Report</button>
+        <button class="btn btn-reset" onclick="resetAll()">New Analysis</button>
+      </div>
+    </div>
+
+    <!-- Report -->
+    <div class="card hidden fade-in" id="reportCard">
+      <div class="card-header">
+        <span class="card-title">Analysis Report</span>
+      </div>
+      <div class="report-body md-content" id="reportContent"></div>
+      <div style="display:flex;gap:8px;margin-top:10px">
+        <button class="btn btn-primary" style="flex:1" onclick="downloadReport()">Download Markdown</button>
+        <button class="btn btn-reset" style="flex:1" onclick="resetAll()">New Analysis</button>
+      </div>
+    </div>
+
+  </aside>
+
+  <!-- RIGHT PANEL — Agent Reasoning -->
+  <section class="right-panel" id="rightPanel">
+    <div class="thinking-topbar">
+      <div class="thinking-title-group">
+        <div class="thinking-dot" id="thinkingDot"></div>
+        <span class="thinking-title" id="thinkingLabel">Agent Reasoning</span>
+      </div>
+      <span class="thinking-status" id="thinkingStatus"></span>
+    </div>
+    <div class="thinking-activity-row" id="thinkingActivity"></div>
+    <div class="thinking-log" id="thinkingLog">
+      <div class="thinking-empty" id="thinkingEmpty">
+        <div class="thinking-empty-icon"></div>
+        <div class="thinking-empty-text">
+          Select a demo sample or upload a spectrum file.<br>
+          The agent's real-time reasoning chain will stream here.
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- FOOTER -->
+  <footer class="app-footer">
+    <a href="https://github.com/jxbaoxiaodong/chemspectra-agent" target="_blank">GitHub</a>
+    <span class="footer-sep">&middot;</span>
+    <span>Qwen Cloud Hackathon Track 4</span>
+    <span class="footer-sep">&middot;</span>
+    <a href="https://ftir.fun" target="_blank">FTIR.fun</a>
+  </footer>
+
+</div>
+
+<script>
+const $ = id => document.getElementById(id);
+function esc(s) { const d = document.createElement('div'); d.textContent = String(s ?? ''); return d.innerHTML; }
+
+let currentSessionId = null;
+let streamBufs = { thinking: '', synthesis: '' };
+let lastSubmitTime = 0;
+const COOLDOWN_MS = 15000;
+
+async function auditEvent(event, payload = {}) {
+  try {
+    await fetch('/api/audit/frontend', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      keepalive: true,
+      body: JSON.stringify({
+        event,
+        session_id: currentSessionId,
+        payload: {
+          page: window.location.pathname,
+          viewport: {
+            width: window.innerWidth,
+            height: window.innerHeight,
+          },
+          ...payload,
+        },
+      }),
+    });
+  } catch (err) {
+    console.warn('Audit event failed', event, err);
+  }
+}
+
+auditEvent('page_loaded', {
+  user_agent: navigator.userAgent,
+});
+
+const SAMPLE_INFO = {
+  'abs_styrenic.dx':   { name: 'ABS Styrenic Copolymer', dot: 'styrenic' },
+  'gelatin.csv':       { name: 'Gelatin Protein',         dot: 'protein' },
+  'polypropylene.csv': { name: 'Polypropylene (PP)',       dot: 'polyolefin' },
+  '20260620134005173506225.csv': { name: 'Unknown Mixture', dot: 'unknown' },
+};
+
+const TOOL_LABELS = {
+  search_library: 'Library Search',
+  assess_direction: 'Direction Analysis',
+  cross_validate: 'Chemistry Rule Check',
+  search_public_cases: 'Public Cases',
+  explain_peaks: 'Peak Explanation',
+  check_spectrum_quality: 'Quality Check',
+};
+
+// ---- Load Samples ----
+(async function loadSamples() {
+  try {
+    const resp = await fetch('/api/samples');
+    const samples = await resp.json();
+    const grid = $('sampleGrid');
+    auditEvent('samples_loaded', { sample_count: samples.length });
+    samples.forEach(s => {
+      const info = SAMPLE_INFO[s.filename] || {
+        name: s.filename.replace(/\.[^.]+$/, ''),
+        dot: 'unknown',
+      };
+      const btn = document.createElement('button');
+      btn.className = 'sample-card';
+      btn.innerHTML =
+        '<span class="sample-dot ' + esc(info.dot) + '"></span>' +
+        '<div class="sample-meta">' +
+          '<span class="sample-name">' + esc(info.name) + '</span>' +
+          '<span class="sample-file">' + esc(s.filename) + '</span>' +
+        '</div>';
+      btn.onclick = () => loadSample(s.url, s.filename);
+      grid.appendChild(btn);
+    });
+  } catch (e) { console.warn('Failed to load demo samples', e); }
+})();
+
+async function loadSample(url, filename) {
+  const resp = await fetch(url);
+  const blob = await resp.blob();
+  const file = new File([blob], filename, { type: blob.type });
+  const dt = new DataTransfer();
+  dt.items.add(file);
+  $('specFile').files = dt.files;
+  auditEvent('sample_selected', {
+    filename,
+    size_bytes: file.size,
+    mime_type: file.type || '',
+  });
+  // Scroll upload card into view so user can review and click Analyze
+  $('uploadCard').scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+// ---- Validation ----
+function validateForm() {
+  const now = Date.now();
+  if (now - lastSubmitTime < COOLDOWN_MS) {
+    const wait = Math.ceil((COOLDOWN_MS - (now - lastSubmitTime)) / 1000);
+    alert('Please wait ' + wait + 's before submitting again.');
+    return false;
+  }
+  const file = $('specFile').files[0];
+  if (!file) {
+    alert('Please select a spectrum file or choose a demo sample above.');
+    return false;
+  }
+  const ext = file.name.split('.').pop().toLowerCase();
+  if (!['csv','jdx','dx','txt','json','spa','spc'].includes(ext)) {
+    alert('Unsupported file format. Please use CSV, JCAMP-DX (.jdx/.dx), TXT, or JSON.');
+    return false;
+  }
+  if ($('sampleCtx').value.length > 200) {
+    alert('Sample context is too long (max 200 characters).');
+    return false;
+  }
+  lastSubmitTime = now;
+  return true;
+}
+
+// ---- Pipeline Steps ----
+function setPipelineStep(n, status) {
+  for (let i = 1; i <= 5; i++) {
+    const el = $('ps' + i);
+    const dot = el.querySelector('.pipeline-dot');
+    el.className = 'pipeline-step ' + (i < n ? 'done' : i === n ? status : 'pending');
+    dot.textContent = i < n ? '✓' : i;
+  }
+}
+
+// ---- Thinking Panel ----
+function setThinkingLabel(label) { $('thinkingLabel').textContent = label; }
+
+function setThinkingDot(state) {
+  const dot = $('thinkingDot');
+  dot.className = 'thinking-dot';
+  if (state === 'active') dot.classList.add('active');
+  else if (state === 'done') dot.classList.add('done');
+}
+
+function appendLog(level, message, cls) {
+  const log = $('thinkingLog');
+  const emptyEl = $('thinkingEmpty');
+  if (emptyEl) emptyEl.remove();
+
+  const line = document.createElement('div');
+  line.className = 'log-entry';
+  const now = new Date();
+  const ts = now.toLocaleTimeString([], { hour12: false, hour: '2-digit', minute: '2-digit', second: '2-digit' });
+  const levelClass = cls || level || 'qwen';
+  line.innerHTML =
+    '<span class="log-time">' + esc(ts) + '</span>' +
+    '<span class="log-level ' + esc(levelClass) + '">' + esc(level || 'log') + '</span>' +
+    '<span class="log-body">' + esc(message || '') + '</span>';
+  log.appendChild(line);
+  log.scrollTop = log.scrollHeight;
+}
+
+function flushBuf(key, cls) {
+  const buf = (streamBufs[key] || '').replace(/\s+/g, ' ').trim();
+  if (buf) appendLog(key, buf, cls || key);
+  streamBufs[key] = '';
+}
+
+function appendBuf(key, text, cls) {
+  if (!text) return;
+  streamBufs[key] = (streamBufs[key] || '') + text;
+  const buf = streamBufs[key];
+  if (/[.!?]\s*$/.test(buf) || /\n\s*$/.test(buf) || buf.length >= 180) {
+    const cleaned = buf.replace(/\s+/g, ' ').trim();
+    if (cleaned) appendLog(key, cleaned, cls || key);
+    streamBufs[key] = '';
+  }
+}
+
+function addActivityBadge(tool, phase) {
+  const row = $('thinkingActivity');
+  const isVerify = phase === 'verification';
+  const label = TOOL_LABELS[tool] || tool;
+  const badge = document.createElement('span');
+  badge.className = 'activity-badge ' + (isVerify ? 'verify' : 'tool');
+  badge.textContent = '→ ' + label;
+  row.appendChild(badge);
+}
+
+// ---- Form Submit & SSE Stream ----
+$('uploadForm').addEventListener('submit', async e => {
+  e.preventDefault();
+  if (!validateForm()) return;
+
+  $('submitBtn').disabled = true;
+  $('pipelineCard').classList.remove('hidden');
+  $('resultsCard').classList.add('hidden');
+  $('reportCard').classList.add('hidden');
+  $('chatMessages').innerHTML = '';
+  streamBufs = { thinking: '', synthesis: '' };
+
+  $('thinkingLog').innerHTML = '';
+  $('thinkingActivity').innerHTML = '';
+  $('thinkingStatus').textContent = '';
+  setThinkingLabel('Agent Reasoning');
+  setThinkingDot('active');
+
+  setPipelineStep(1, 'active');
+  appendLog('input', 'Submitting spectrum to ChemSpectra Agent...', 'input');
+
+  const fd = new FormData(e.target);
+  const submitFile = $('specFile').files[0];
+  await auditEvent('analysis_submitted', {
+    filename: submitFile ? submitFile.name : '',
+    file_size_bytes: submitFile ? submitFile.size : 0,
+    analysis_type: fd.get('analysis_type') || 'identify',
+    context: fd.get('context') || '',
+  });
+
+  try {
+    const resp = await fetch('/api/analyze/stream', { method: 'POST', body: fd });
+    if (!resp.ok) throw new Error('HTTP ' + resp.status);
+
+    const reader = resp.body.getReader();
+    const decoder = new TextDecoder();
+    let buf = '';
+    let finalData = null;
+
+    while (true) {
+      const { done, value } = await reader.read();
+      if (done) break;
+      buf += decoder.decode(value, { stream: true });
+      const lines = buf.split('\n');
+      buf = lines.pop();
+
+      for (const line of lines) {
+        if (!line.startsWith('data: ')) continue;
+        let evt;
+        try { evt = JSON.parse(line.slice(6)); } catch { continue; }
+
+        switch (evt.type) {
+          case 'phase':
+            flushBuf('thinking', 'thinking');
+            flushBuf('synthesis', 'synthesis');
+            setThinkingLabel(evt.data.label || evt.data.phase);
+            appendLog('phase', evt.data.label || evt.data.phase, 'phase');
+            if (evt.data.phase === 'ReAct') setPipelineStep(1, 'active');
+            else if (evt.data.phase === 'Synthesis' || evt.data.phase === 'Verification synthesis')
+              setPipelineStep(3, 'active');
+            break;
+          case 'log':
+            appendLog(evt.data.level || 'log', evt.data.message || '', evt.data.level || 'qwen');
+            break;
+          case 'tool_plan':
+            appendLog('qwen', evt.data.message || 'Qwen selected tools.', 'qwen');
+            break;
+          case 'thinking':
+            appendBuf('thinking', evt.data.text, 'thinking');
+            break;
+          case 'synthesis_chunk':
+            appendBuf('synthesis', evt.data.text, 'synthesis');
+            break;
+          case 'tool_call':
+            flushBuf('thinking', 'thinking');
+            flushBuf('synthesis', 'synthesis');
+            setPipelineStep(2, 'active');
+            addActivityBadge(evt.data.tool, evt.data.phase);
+            appendLog('tool', evt.data.message || ('Calling ' + evt.data.tool), evt.data.phase === 'verification' ? 'verify' : 'tool');
+            break;
+          case 'tool_result':
+            flushBuf('thinking', 'thinking');
+            flushBuf('synthesis', 'synthesis');
+            appendLog('tool', evt.data.message || (evt.data.tool + ' returned results'), evt.data.phase === 'verification' ? 'verify' : 'tool');
+            break;
+          case 'confidence':
+            flushBuf('thinking', 'thinking');
+            flushBuf('synthesis', 'synthesis');
+            appendLog('confidence', evt.data.message || 'Confidence calculated.', 'confidence');
+            break;
+          case 'done':
+            flushBuf('thinking', 'thinking');
+            flushBuf('synthesis', 'synthesis');
+            finalData = evt.data;
+            break;
+          case 'error':
+            throw new Error(evt.data.message || 'Stream error');
+        }
+      }
+      if (finalData) break;
+    }
+
+    if (!finalData) throw new Error('Stream ended without result.');
+
+    currentSessionId = finalData.session_id;
+    await auditEvent('analysis_rendered', {
+      session_id: currentSessionId,
+      step: finalData.step,
+      tools_called: finalData.tools_called || [],
+      verdict: finalData.confirmation ? finalData.confirmation.verdict : '',
+      resolved_level: finalData.confirmation ? finalData.confirmation.resolved_level : '',
+      decision_status: finalData.confirmation ? finalData.confirmation.decision_status : '',
+      confidence: finalData.confirmation ? finalData.confirmation.confidence : null,
+    });
+    setThinkingDot('done');
+    setThinkingLabel('Analysis Complete');
+    $('thinkingStatus').textContent = 'Done';
+
+    if (finalData.step === 'needs_clarification') {
+      setPipelineStep(1, 'done');
+      addChatMsg('agent', finalData.question || 'Could you provide more details?');
+      $('resultsCard').classList.remove('hidden');
+      $('bestMatchCard').innerHTML =
+        '<div style="color:var(--purple);font-size:14px;font-weight:600">Agent needs more information</div>';
+      setMd($('reasoningText'), finalData.question || '');
+      $('decisionBlock').classList.add('hidden');
+      $('verdictBadge').textContent = 'CLARIFICATION NEEDED';
+      $('verdictBadge').className = 'verdict-badge clarification';
+      $('candidateList').innerHTML = '';
+      $('confirmActions').classList.add('hidden');
+    } else {
+      setPipelineStep(4, 'active');
+      renderResults(finalData);
+      $('resultsCard').classList.remove('hidden');
+      $('confirmActions').classList.remove('hidden');
+    }
+  } catch (err) {
+    setPipelineStep(1, 'error');
+    setThinkingDot('done');
+    $('thinkingStatus').textContent = 'Error';
+    alert('Analysis failed: ' + err.message);
+  }
+  $('submitBtn').disabled = false;
+});
+
+// ---- Render Results ----
+function renderResults(data) {
+  const c = data.confirmation || {};
+  const best = c.best_match || {};
+
+  const vb = $('verdictBadge');
+  const verdict = c.verdict || 'needs_review';
+  const verdictLabels = {
+    confirmed: 'CONFIRMED', needs_review: 'NEEDS REVIEW', rejected: 'REJECTED',
+    no_results: 'NO RESULTS', uncertain: 'UNCERTAIN',
+  };
+  vb.textContent = verdictLabels[verdict] || verdict.replace(/_/g, ' ').toUpperCase();
+  vb.className = 'verdict-badge ' +
+    (verdict === 'confirmed' ? 'green' : verdict === 'needs_review' ? 'yellow' : 'red');
+
+  $('searchMode').textContent = data.search_summary || '';
+
+  const score = best.score || 0;
+  const pct = score < 1 ? (score * 100).toFixed(1) + '%' : score.toFixed(1) + '%';
+  $('bestMatchCard').innerHTML =
+    '<div class="match-compound">' + esc(best.name || 'Unknown') + '</div>' +
+    '<div class="match-meta">' +
+      '<span>CAS: ' + esc(best.cas || 'N/A') + '</span>' +
+      '<span class="match-meta-sep">&middot;</span>' +
+      '<span class="match-score">' + pct + '</span>' +
+    '</div>';
+
+  setMd($('reasoningText'), c.reasoning || 'Chemical verification completed.');
+
+  const cl = $('candidateList');
+  cl.innerHTML = '';
+  (c.candidates || []).forEach(m => {
+    const s = (m.score || 0) < 1 ? ((m.score || 0) * 100).toFixed(1) + '%' : (m.score || 0).toFixed(1) + '%';
+    cl.innerHTML +=
+      '<div class="candidate-row">' +
+        '<div><span class="candidate-name">' + esc(m.name) + '</span><br>' +
+        '<span class="candidate-cas">CAS: ' + esc(m.cas || 'N/A') + '</span></div>' +
+        '<span class="candidate-score">' + s + '</span>' +
+      '</div>';
+  });
+
+  const tools = c.tools_called || data.tools_called || [];
+  if (tools.length > 0) {
+    $('toolsBlock').classList.remove('hidden');
+    $('toolsList').innerHTML = tools.map(t => {
+      const label = TOOL_LABELS[t] || t;
+      const cls = (t === 'cross_validate' || t === 'assess_direction') ? 'verify' : '';
+      return '<span class="tool-tag ' + cls + '">' + esc(label) + '</span>';
+    }).join('');
+  } else { $('toolsBlock').classList.add('hidden'); }
+
+  const synthesis = c.synthesis || '';
+  if (synthesis) {
+    $('synthesisBlock').classList.remove('hidden');
+    setMd($('synthesisText'), synthesis);
+  } else { $('synthesisBlock').classList.add('hidden'); }
+
+  const direction = c.direction_assessment || {};
+  const arb = $('arbStats');
+  arb.innerHTML = '';
+  if (typeof direction.entity_share === 'number' && typeof direction.direction_confidence === 'number') {
+    const es = (direction.entity_share * 100).toFixed(1);
+    const dc = (direction.direction_confidence * 100).toFixed(1);
+    const esCls = direction.entity_share >= 0.5 ? 'high' : direction.entity_share >= 0.2 ? 'mid' : 'low';
+    const dcCls = direction.direction_confidence >= 0.8 ? 'high' : direction.direction_confidence >= 0.5 ? 'mid' : 'low';
+    const sc = direction.supporting_candidates;
+    const dirName = direction.dominant_direction;
+    const dcNote = dirName
+      ? ((sc ? sc + ' candidates' : 'All candidates') + ' point to the <strong>' + esc(dirName) + '</strong> family.')
+      : 'No single chemical family dominates the candidate list.';
+    arb.innerHTML =
+      '<div class="arb-stat">' +
+        '<div class="arb-stat-label">Entity Share &mdash; one exact compound?</div>' +
+        '<div class="arb-stat-value ' + esCls + '">' + es + '%</div>' +
+        '<div class="arb-stat-note">Top-1 weight among all candidates. Low = near-tied list; a single library entry cannot be locked.</div>' +
+      '</div>' +
+      '<div class="arb-stat">' +
+        '<div class="arb-stat-label">Direction Confidence &mdash; chemical family?</div>' +
+        '<div class="arb-stat-value ' + dcCls + '">' + dc + '%</div>' +
+        '<div class="arb-stat-note">' + dcNote + '</div>' +
+      '</div>';
+  }
+
+  const decisionLines = [];
+  if (c.resolved_level) decisionLines.push('**Resolved Level:** ' + c.resolved_level);
+  if (direction.dominant_direction) decisionLines.push('**Dominant Direction:** ' + direction.dominant_direction);
+  if (direction.reason) decisionLines.push(direction.reason);
+  if (c.review_required) decisionLines.push('Human review required before using this result in a report.');
+
+  if (decisionLines.length > 0 || arb.innerHTML) {
+    $('decisionBlock').classList.remove('hidden');
+    const ds = c.decision_status || 'yellow';
+    const dsLabels = { green: 'GREEN — Pass', yellow: 'YELLOW — Caution', red: 'RED — Review Required' };
+    const bar = $('decisionStatusBar');
+    bar.textContent = dsLabels[ds] || ds.toUpperCase();
+    bar.className = 'status-bar ' + (ds === 'green' ? 'green' : ds === 'yellow' ? 'yellow' : 'red');
+    setMd($('decisionText'), decisionLines.join('\n\n'));
+  } else { $('decisionBlock').classList.add('hidden'); }
+
+  // ---- Spectrum quality warnings (check_spectrum_quality) ----
+  const q = c.quality_check;
+  if (q && (q.warnings || []).length > 0) {
+    $('qualityBlock').classList.remove('hidden');
+    $('qualityList').innerHTML = q.warnings.map(w =>
+      '<div class="quality-warn">&#9888; ' + esc(w) + '</div>'
+    ).join('');
+  } else { $('qualityBlock').classList.add('hidden'); }
+
+  // ---- Deterministic rule checks (cross_validate) ----
+  const CHECK_LABELS = {
+    score_gap: 'Lead score gap',
+    match_quality: 'Match quality',
+    family_group_agreement: 'Family group agreement',
+    hard_forbidden_groups: 'Forbidden groups (negative evidence)',
+    peak_coverage: 'Peak coverage',
+    background_interference: 'Background interference',
+    basic_quality: 'Basic quality',
+  };
+  const cv = c.cross_validation;
+  if (cv && (cv.checks || []).length > 0) {
+    $('cvBlock').classList.remove('hidden');
+    $('cvChecks').innerHTML = cv.checks.map(ch => {
+      const applicable = ch.applicable !== false;
+      const st = !applicable ? 'na' : (ch.passed ? 'pass' : 'fail');
+      const chipTxt = !applicable ? 'N/A' : (ch.passed ? 'PASS' : 'FAIL');
+      const veto = ch.check === 'hard_forbidden_groups' && applicable && !ch.passed;
+      const name = CHECK_LABELS[ch.check] || ch.check;
+      return '<div class="check-row' + (veto ? ' veto' : '') + '">' +
+        '<span class="check-chip ' + st + '">' + chipTxt + '</span>' +
+        '<div><span class="check-name">' + esc(name) + (veto ? ' — candidate vetoed' : '') + '</span>' +
+        '<div class="check-detail">' + esc(ch.detail || '') + '</div></div>' +
+      '</div>';
+    }).join('');
+    const cb = c.confidence_breakdown;
+    if (cb && cb.formula) {
+      $('confidenceFormula').classList.remove('hidden');
+      $('confidenceFormula').textContent = 'confidence = ' + cb.formula;
+    } else { $('confidenceFormula').classList.add('hidden'); }
+  } else { $('cvBlock').classList.add('hidden'); }
+
+  // ---- Literature-backed peak assignments (with DOI) ----
+  const pes = c.peak_explanations || [];
+  const peakRows = [];
+  const seenPeaks = new Set();
+  pes.forEach(pe => {
+    if (!pe || (!pe.peak_cm1 && !pe.assignment)) return;
+    const key = String(pe.peak_cm1) + '|' + String(pe.assignment);
+    if (seenPeaks.has(key)) return;
+    seenPeaks.add(key);
+    const doi = pe.doi ? String(pe.doi).trim() : '';
+    peakRows.push(
+      '<div class="peak-row">' +
+        '<span class="peak-pos">' + (pe.peak_cm1 != null ? esc(pe.peak_cm1) : '&mdash;') + '</span>' +
+        '<span class="peak-assign">' + esc(pe.assignment || '') + '</span>' +
+        (doi
+          ? '<a class="doi-link" href="https://doi.org/' + encodeURIComponent(doi) + '" target="_blank" rel="noopener">DOI ' + esc(doi) + '</a>'
+          : '<span class="doi-link" style="color:var(--text-muted)">&mdash;</span>') +
+      '</div>'
+    );
+  });
+  if (peakRows.length > 0) {
+    $('peaksBlock').classList.remove('hidden');
+    $('peaksList').innerHTML = peakRows.slice(0, 8).join('');
+  } else { $('peaksBlock').classList.add('hidden'); }
+
+  const flags = c.flags || [];
+  if (flags.length > 0) {
+    $('flagsBlock').classList.remove('hidden');
+    $('flagsList').innerHTML = flags.map(f =>
+      '<div class="flag-item"><span class="flag-dot"></span>' + esc(f) + '</div>'
+    ).join('');
+  } else { $('flagsBlock').classList.add('hidden'); }
+
+  const plan = c.verification_plan || {};
+  const steps = plan.steps || [];
+  if (steps.length > 0) {
+    $('planBlock').classList.remove('hidden');
+    $('planGoal').textContent = plan.goal ? 'Goal: ' + plan.goal : '';
+    $('planList').innerHTML = steps.map(s => '<li>' + esc(s) + '</li>').join('');
+  } else { $('planBlock').classList.add('hidden'); }
+}
+
+// ---- Chat ----
+function addChatMsg(role, text) {
+  const el = document.createElement('div');
+  el.className = 'chat-bubble ' + role;
+  if (role === 'agent') { setMd(el, text); }
+  else { el.textContent = text; }
+  const container = $('chatMessages');
+  container.appendChild(el);
+  container.scrollTop = container.scrollHeight;
+}
+
+async function sendChat() {
+  const input = $('chatInput');
+  const msg = input.value.trim();
+  if (!msg || !currentSessionId) return;
+  input.value = '';
+  addChatMsg('user', msg);
+  await auditEvent('followup_sent', {
+    session_id: currentSessionId,
+    message: msg,
+  });
+  try {
+    const r = await fetch('/api/followup', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ session_id: currentSessionId, message: msg }),
+    });
+    const d = await r.json();
+    (d.tools_used || []).forEach(t => {
+      addActivityBadge(t);
+      appendLog('tool', 'Follow-up intent routing: Qwen called ' + (TOOL_LABELS[t] || t), 'tool');
+    });
+    addChatMsg('agent', d.response || d.error || 'No response');
+    await auditEvent('followup_received', {
+      session_id: currentSessionId,
+      action: d.action || 'none',
+      tools_used: d.tools_used || [],
+      response: d.response || d.error || 'No response',
+    });
+  } catch (err) {
+    addChatMsg('agent', 'Error: ' + err.message);
+  }
+}
+
+// ---- Confirm & Report ----
+async function confirmResult() {
+  if (!currentSessionId) return;
+  setPipelineStep(5, 'active');
+  await auditEvent('confirm_clicked', { session_id: currentSessionId });
+  $('confirmActions').innerHTML =
+    '<div style="color:var(--teal);font-size:13px;font-weight:600;text-align:center;width:100%;padding:8px">Generating report...</div>';
+
+  try {
+    const r = await fetch('/api/confirm', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ session_id: currentSessionId, action: 'accept' }),
+    });
+    const d = await r.json();
+    setPipelineStep(5, 'done');
+    $('reportContent').textContent = d.report || JSON.stringify(d, null, 2);
+    $('reportCard').classList.remove('hidden');
+    $('resultsCard').classList.add('hidden');
+    await auditEvent('report_rendered', {
+      session_id: currentSessionId,
+      report_length: (d.report || '').length,
+    });
+  } catch (err) {
+    setPipelineStep(5, 'error');
+    alert('Report generation failed: ' + err.message);
+  }
+}
+
+function downloadReport() {
+  if (!currentSessionId) return;
+  auditEvent('report_download_requested', { session_id: currentSessionId });
+  window.open('/api/report/' + currentSessionId + '?fmt=md', '_blank');
+}
+
+function resetAll() {
+  currentSessionId = null;
+  $('uploadForm').reset();
+  ['pipelineCard','resultsCard','reportCard','decisionBlock','qualityBlock','cvBlock','peaksBlock','toolsBlock','synthesisBlock','flagsBlock','planBlock'].forEach(id => {
+    const el = $(id);
+    if (el) el.classList.add('hidden');
+  });
+  $('chatMessages').innerHTML = '';
+  for (let i = 1; i <= 5; i++) {
+    const el = $('ps' + i);
+    el.className = 'pipeline-step pending';
+    el.querySelector('.pipeline-dot').textContent = i;
+  }
+  $('confirmActions').innerHTML =
+    '<button class="btn btn-accept" onclick="confirmResult()">Accept &amp; Generate Report</button>' +
+    '<button class="btn btn-reset" onclick="resetAll()">New Analysis</button>';
+  $('confirmActions').classList.remove('hidden');
+  $('demoCard').style.opacity = '1';
+
+  // Reset thinking panel
+  $('thinkingLog').innerHTML =
+    '<div class="thinking-empty" id="thinkingEmpty">' +
+      '<div class="thinking-empty-icon"></div>' +
+      '<div class="thinking-empty-text">Select a demo sample or upload a spectrum file.<br>The agent\'s real-time reasoning chain will stream here.</div>' +
+    '</div>';
+  $('thinkingActivity').innerHTML = '';
+  $('thinkingStatus').textContent = '';
+  setThinkingLabel('Agent Reasoning');
+  setThinkingDot('');
+}
+
+// ---- Markdown Renderer ----
+function setMd(el, text) {
+  el.classList.add('md-content');
+  el.innerHTML = renderMd(text || '');
+}
+
+function renderInlineMd(text) {
+  return esc(text)
+    .replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>')
+    .replace(/`([^`]+)`/g, '<code>$1</code>');
+}
+
+function isTableSep(line) {
+  return /^\|?\s*:?-{3,}:?\s*(\|\s*:?-{3,}:?\s*)+\|?$/.test(line);
+}
+
+function splitRow(line) {
+  return line.replace(/^\|/, '').replace(/\|$/, '').split('|').map(c => c.trim());
+}
+
+function renderMd(text) {
+  const lines = String(text || '').replace(/\r\n/g, '\n').split('\n');
+  const html = [];
+  let listTag = null;
+
+  function closeList() {
+    if (listTag) { html.push('</' + listTag + '>'); listTag = null; }
+  }
+
+  for (let i = 0; i < lines.length; i++) {
+    const raw = lines[i];
+    const line = raw.trim();
+    if (!line) { closeList(); continue; }
+
+    if (line.startsWith('|') && lines[i + 1] && isTableSep(lines[i + 1].trim())) {
+      closeList();
+      const headers = splitRow(line);
+      html.push('<table><thead><tr>' + headers.map(h => '<th>' + renderInlineMd(h) + '</th>').join('') + '</tr></thead><tbody>');
+      i += 2;
+      for (; i < lines.length; i++) {
+        const rowLine = lines[i].trim();
+        if (!rowLine.startsWith('|')) { i--; break; }
+        html.push('<tr>' + splitRow(rowLine).map(c => '<td>' + renderInlineMd(c) + '</td>').join('') + '</tr>');
+      }
+      html.push('</tbody></table>');
+      continue;
+    }
+
+    const h = line.match(/^(#{1,4})\s+(.+)$/);
+    if (h) { closeList(); const tag = h[1].length <= 2 ? 'h3' : 'h4'; html.push('<' + tag + '>' + renderInlineMd(h[2]) + '</' + tag + '>'); continue; }
+
+    if (/^-{3,}$/.test(line)) { closeList(); html.push('<hr>'); continue; }
+
+    const ul = line.match(/^[-*]\s+(.+)$/);
+    if (ul) {
+      if (listTag !== 'ul') { closeList(); listTag = 'ul'; html.push('<ul>'); }
+      html.push('<li>' + renderInlineMd(ul[1]) + '</li>');
+      continue;
+    }
+
+    const ol = line.match(/^\d+\.\s+(.+)$/);
+    if (ol) {
+      if (listTag !== 'ol') { closeList(); listTag = 'ol'; html.push('<ol>'); }
+      html.push('<li>' + renderInlineMd(ol[1]) + '</li>');
+      continue;
+    }
+
+    closeList();
+    html.push('<p>' + renderInlineMd(line) + '</p>');
+  }
+  closeList();
+  return html.join('');
+}
+</script>
+
+</body>
+</html>
