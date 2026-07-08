@@ -313,6 +313,7 @@ select { cursor: pointer; }
 .sample-dot.styrenic { background: var(--purple); }
 .sample-dot.protein { background: var(--emerald); }
 .sample-dot.polyolefin { background: var(--blue); }
+.sample-dot.ester { background: #FACC15; }
 .sample-dot.unknown { background: var(--rose); }
 .sample-meta { display: flex; flex-direction: column; gap: 1px; overflow: hidden; }
 .sample-name { font-size: 12px; font-weight: 600; color: var(--text-primary); }
@@ -961,6 +962,7 @@ auditEvent('page_loaded', {
 
 const SAMPLE_INFO = {
   'abs_styrenic.dx':   { name: 'ABS Styrenic Copolymer', dot: 'styrenic' },
+  'fatty_ester_20260707120623668587.csv': { name: 'Vegetable Oil (Fatty Esters)', dot: 'ester' },
   'gelatin.csv':       { name: 'Gelatin Protein',         dot: 'protein' },
   'polypropylene.csv': { name: 'Polypropylene (PP)',       dot: 'polyolefin' },
   '20260620134005173506225.csv': { name: 'Unknown Mixture', dot: 'unknown' },
