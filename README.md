@@ -68,7 +68,7 @@ Lab decisions in pharma, forensics, and QC cannot be fully automated — and sho
 
 ## Demo samples
 
-Real spectra from the FTIR.fun platform (shared under the platform's public-data option, which permits download, processing, and discussion) are included in [`samples/`](samples/):
+Real spectra from the FTIR.fun platform are included in [`samples/`](samples/):
 
 | File | Material | Verified verdict (this code, live API) |
 |---|---|---|
