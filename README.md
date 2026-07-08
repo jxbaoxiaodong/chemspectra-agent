@@ -66,6 +66,19 @@ Follow-up questions go through the same function-calling loop: ask about a peak 
 
 Lab decisions in pharma, forensics, and QC cannot be fully automated — and should not be. The pipeline always pauses at a confirmation checkpoint: the analyst reviews the arbitration evidence, challenges the agent with follow-up questions, and only then is the report generated.
 
+## Demo samples
+
+Real spectra from the FTIR.fun platform (shared under the platform's public-data option, which permits download, processing, and discussion) are included in [`samples/`](samples/):
+
+| File | Material | Verified verdict (this code, live API) |
+|---|---|---|
+| `abs_styrenic.dx` | Styrenic polymer | `entity` / **GREEN** — Top-1 0.9137, entity share 6.9%, direction confidence 100% |
+| `20260620134005173506225.csv` | Unknown mixture | `uncertain_direction` / **RED** — Top-1 0.8029, direction confidence 36.4%, the agent refuses to guess |
+| `gelatin.csv` | Protein biopolymer | try it — protein-family candidates dominate the list |
+| `polypropylene.csv` | Polyolefin | try it — a noisy candidate tail dilutes the direction share |
+
+The RED case is also the reproducibility fixture: three consecutive runs return the identical verdict numbers (score 0.8029, confidence 0.6423).
+
 ## Run it locally
 
 ```bash
