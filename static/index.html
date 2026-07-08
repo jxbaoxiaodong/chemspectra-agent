@@ -12,24 +12,24 @@
    CHEMSpectra Agent — Design System
    ============================================================ */
 :root {
-  --bg-deep: #050914;
-  --bg-base: #0A1020;
-  --bg-raised: #0E1629;
-  --bg-surface: rgba(14, 22, 41, 0.80);
-  --bg-surface-hover: rgba(20, 30, 52, 0.85);
-  --bg-overlay: rgba(5, 9, 20, 0.92);
+  --bg-deep: #070B14;
+  --bg-base: #0A1120;
+  --bg-raised: #0D1424;
+  --bg-surface: #0D1424;
+  --bg-surface-hover: #111A2E;
+  --bg-overlay: rgba(7, 11, 20, 0.94);
 
-  --border-subtle: rgba(56, 189, 248, 0.06);
-  --border-default: rgba(56, 189, 248, 0.10);
-  --border-strong: rgba(56, 189, 248, 0.18);
-  --border-active: rgba(13, 148, 136, 0.35);
+  --border-subtle: #141D31;
+  --border-default: #1C2740;
+  --border-strong: #2A3A5C;
+  --border-active: rgba(20, 184, 166, 0.45);
 
-  --text-primary: #EDF2F9;
-  --text-secondary: #94A9C9;
-  --text-muted: #556885;
+  --text-primary: #E8EEF7;
+  --text-secondary: #93A7C4;
+  --text-muted: #5A6B85;
   --text-placeholder: #3D4F6B;
 
-  --teal: #0D9488;
+  --teal: #14B8A6;
   --teal-dim: #0F766E;
   --blue: #38BDF8;
   --blue-dim: #0369A1;
@@ -39,12 +39,13 @@
   --rose-dim: #9F1239;
   --purple: #A78BFA;
   --purple-dim: #5B21B6;
+  --amber: #FACC15;
 
-  --glow-teal: 0 0 30px rgba(13, 148, 136, 0.10);
-  --glow-blue: 0 0 30px rgba(56, 189, 248, 0.08);
-  --glow-emerald: 0 0 20px rgba(52, 211, 153, 0.08);
+  --glow-teal: 0 0 24px rgba(20, 184, 166, 0.08);
+  --glow-blue: 0 0 24px rgba(56, 189, 248, 0.06);
+  --glow-emerald: 0 0 18px rgba(52, 211, 153, 0.06);
 
-  --r-xs: 4px; --r-sm: 8px; --r-md: 12px; --r-lg: 16px; --r-xl: 20px; --r-full: 9999px;
+  --r-xs: 5px; --r-sm: 9px; --r-md: 12px; --r-lg: 16px; --r-xl: 20px; --r-full: 9999px;
   --t-fast: 150ms ease; --t-normal: 250ms ease; --t-slow: 400ms ease;
 }
 
@@ -64,18 +65,10 @@ body {
 .bg-ambient {
   position: fixed; inset: 0; pointer-events: none; z-index: 0;
   background:
-    radial-gradient(ellipse 80% 50% at 20% 10%, rgba(13, 148, 136, 0.04) 0%, transparent 60%),
-    radial-gradient(ellipse 60% 50% at 80% 80%, rgba(56, 189, 248, 0.05) 0%, transparent 60%),
-    radial-gradient(ellipse 50% 40% at 50% 50%, rgba(167, 139, 250, 0.02) 0%, transparent 70%);
+    radial-gradient(ellipse 70% 45% at 50% -10%, rgba(20, 184, 166, 0.06) 0%, transparent 60%),
+    radial-gradient(ellipse 55% 45% at 90% 100%, rgba(56, 189, 248, 0.04) 0%, transparent 60%);
 }
-.bg-grid {
-  position: fixed; inset: 0; pointer-events: none; z-index: 0; opacity: 0.25;
-  background-image:
-    linear-gradient(rgba(56, 189, 248, 0.03) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(56, 189, 248, 0.03) 1px, transparent 1px);
-  background-size: 60px 60px;
-  mask-image: radial-gradient(ellipse 80% 60% at 50% 40%, black 30%, transparent 70%);
-}
+.bg-grid { display: none; }
 
 ::-webkit-scrollbar { width: 5px; }
 ::-webkit-scrollbar-track { background: transparent; }
@@ -88,8 +81,8 @@ body {
 .app-shell {
   position: relative; z-index: 1;
   display: grid;
-  grid-template-columns: 440px 1fr;
-  grid-template-rows: 52px 1fr 32px;
+  grid-template-columns: 480px 1fr;
+  grid-template-rows: 58px 1fr 32px;
   height: 100vh;
 }
 
@@ -97,64 +90,53 @@ body {
   grid-column: 1 / -1;
   display: flex; align-items: center; justify-content: space-between;
   padding: 0 24px;
-  background: rgba(10, 16, 32, 0.85);
-  backdrop-filter: blur(20px) saturate(180%);
+  background: rgba(10, 17, 32, 0.92);
   border-bottom: 1px solid var(--border-subtle);
   z-index: 10;
 }
-.header-brand { display: flex; align-items: center; gap: 10px; }
-.header-logo {
-  display: flex; flex-direction: column; align-items: center; justify-content: center;
-  padding: 4px 12px; gap: 1px;
-  border-radius: var(--r-sm);
-  background: linear-gradient(135deg, var(--teal), #0F766E);
-  box-shadow: 0 2px 12px rgba(13, 148, 136, 0.25);
-  position: relative; overflow: hidden;
+.header-brand { display: flex; align-items: center; gap: 12px; }
+.brand-mark {
+  width: 34px; height: 34px; border-radius: 9px; flex-shrink: 0;
+  background: linear-gradient(150deg, rgba(20,184,166,0.16), rgba(56,189,248,0.10));
+  border: 1px solid rgba(20, 184, 166, 0.35);
+  display: flex; align-items: center; justify-content: center;
 }
-.header-logo::after {
-  content: ''; position: absolute; inset: 0;
-  background: radial-gradient(circle at 30% 30%, rgba(255,255,255,0.2) 0%, transparent 60%);
-  pointer-events: none;
-}
-.header-logo-line1 {
-  font-size: 8px; font-weight: 700; letter-spacing: 0.6px;
-  color: rgba(255,255,255,0.95); text-transform: uppercase;
-  line-height: 1.2; white-space: nowrap;
-}
-.header-logo-line2 {
-  font-size: 7.5px; font-weight: 600; letter-spacing: 0.3px;
-  color: rgba(255,255,255,0.75); text-transform: uppercase;
-  line-height: 1.2; white-space: nowrap;
-}
+.brand-mark svg { display: block; }
+.brand-text { display: flex; flex-direction: column; gap: 1px; }
 .header-title {
-  font-size: 17px; font-weight: 700;
-  background: linear-gradient(135deg, var(--text-primary) 0%, #B0C4DE 100%);
-  -webkit-background-clip: text; -webkit-text-fill-color: transparent;
-  background-clip: text;
-  letter-spacing: -0.3px;
+  font-size: 15.5px; font-weight: 700; color: var(--text-primary);
+  letter-spacing: -0.2px; line-height: 1.15;
 }
-.header-badges { display: flex; align-items: center; gap: 10px; }
+.header-sub {
+  font-size: 10.5px; color: var(--text-muted); letter-spacing: 0.3px; line-height: 1.15;
+}
+.header-badges { display: flex; align-items: center; gap: 8px; }
 .badge {
-  font-size: 10.5px; font-weight: 600; padding: 4px 12px;
-  border-radius: var(--r-full); letter-spacing: 0.3px;
+  display: inline-flex; align-items: center; gap: 6px;
+  font-size: 10.5px; font-weight: 600; padding: 5px 12px;
+  border-radius: var(--r-full); letter-spacing: 0.2px;
   white-space: nowrap;
 }
-.badge-qwen { background: rgba(56, 189, 248, 0.10); color: var(--blue); border: 1px solid rgba(56, 189, 248, 0.18); }
+.badge::before { content: ''; width: 5px; height: 5px; border-radius: 50%; }
+.badge-qwen { background: rgba(56, 189, 248, 0.08); color: var(--blue); border: 1px solid rgba(56, 189, 248, 0.20); }
+.badge-qwen::before { background: var(--blue); }
+.badge-lib { background: rgba(52, 211, 153, 0.08); color: var(--emerald); border: 1px solid rgba(52, 211, 153, 0.20); }
+.badge-lib::before { background: var(--emerald); }
 
 
 .left-panel {
   grid-row: 2;
   overflow-y: auto; overflow-x: hidden;
-  padding: 16px 16px 8px;
-  display: flex; flex-direction: column; gap: 12px;
+  padding: 18px 18px 10px;
+  display: flex; flex-direction: column; gap: 14px;
   border-right: 1px solid var(--border-subtle);
-  background: rgba(5, 9, 20, 0.30);
+  background: rgba(7, 11, 20, 0.35);
 }
 
 .right-panel {
   grid-row: 2;
   display: flex; flex-direction: column;
-  background: rgba(5, 9, 20, 0.45);
+  background: rgba(7, 11, 20, 0.55);
   overflow: hidden;
 }
 
@@ -163,8 +145,7 @@ body {
   display: flex; align-items: center; justify-content: center; gap: 12px;
   font-size: 10px; color: var(--text-muted);
   border-top: 1px solid var(--border-subtle);
-  background: rgba(10, 16, 32, 0.7);
-  backdrop-filter: blur(12px);
+  background: rgba(10, 17, 32, 0.8);
   z-index: 10;
 }
 .app-footer a { color: var(--text-secondary); text-decoration: none; transition: color var(--t-fast); }
@@ -176,25 +157,25 @@ body {
    ============================================================ */
 .card {
   background: var(--bg-surface);
-  backdrop-filter: blur(16px) saturate(160%);
   border: 1px solid var(--border-default);
   border-radius: var(--r-lg);
-  padding: 16px;
-  transition: border-color var(--t-normal), box-shadow var(--t-normal);
+  padding: 18px;
+  transition: border-color var(--t-normal);
 }
 .card:hover { border-color: var(--border-strong); }
 .card-header {
   display: flex; align-items: center; justify-content: space-between;
-  margin-bottom: 12px;
+  margin-bottom: 14px;
 }
 .card-title {
   font-size: 11px; font-weight: 700; text-transform: uppercase;
-  letter-spacing: 0.8px; color: var(--text-secondary);
+  letter-spacing: 1px; color: var(--text-secondary);
   display: flex; align-items: center; gap: 8px;
 }
 .card-title::before {
-  content: ''; width: 3px; height: 14px; border-radius: 2px;
+  content: ''; width: 6px; height: 6px; border-radius: 50%;
   background: var(--teal); display: inline-block;
+  box-shadow: 0 0 8px rgba(20, 184, 166, 0.6);
 }
 .card-hint { font-size: 10px; color: var(--text-muted); }
 
@@ -202,22 +183,22 @@ body {
 details.demo-details { padding: 0; overflow: hidden; }
 details.demo-details > summary {
   list-style: none; cursor: pointer;
-  padding: 16px 16px 0;
+  padding: 18px 18px 0;
   display: flex; align-items: center; justify-content: space-between;
 }
 details.demo-details > summary::-webkit-details-marker { display: none; }
 details.demo-details > summary::marker { display: none; content: ""; }
 details.demo-details > summary .card-title { margin-bottom: 0; }
 .demo-hint {
-  font-size: 10px; color: var(--text-muted); margin: 4px 0 0; line-height: 1.4;
+  font-size: 10px; color: var(--text-muted); margin: 5px 0 0; line-height: 1.4;
   font-weight: 400; text-transform: none; letter-spacing: 0;
 }
 details.demo-details > summary .expand-icon {
-  font-size: 14px; color: var(--text-muted); transition: transform var(--t-normal);
+  font-size: 13px; color: var(--text-muted); transition: transform var(--t-normal);
   line-height: 1;
 }
 details.demo-details[open] > summary .expand-icon { transform: rotate(180deg); }
-details.demo-details > .details-body { padding: 12px 16px 16px; }
+details.demo-details > .details-body { padding: 14px 18px 18px; }
 
 /* ============================================================
    FORM ELEMENTS
@@ -228,21 +209,36 @@ details.demo-details > .details-body { padding: 12px 16px 16px; }
 }
 .input-label sub { font-weight: 400; text-transform: none; color: var(--text-muted); letter-spacing: 0; }
 
-input[type="file"] {
-  width: 100%; padding: 20px 14px;
-  background: rgba(5, 9, 20, 0.5);
-  border: 2px dashed var(--border-default);
+.dropzone {
+  position: relative;
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  gap: 6px; width: 100%; padding: 22px 14px;
+  background: rgba(7, 11, 20, 0.5);
+  border: 1.5px dashed var(--border-strong);
   border-radius: var(--r-md);
-  color: var(--text-secondary); font-size: 12px; cursor: pointer;
+  color: var(--text-muted); cursor: pointer;
   transition: all var(--t-normal);
   text-align: center;
 }
-input[type="file"]:hover { border-color: var(--border-active); background: rgba(13, 148, 136, 0.03); }
-input[type="file"]::file-selector-button { display: none; }
+.dropzone:hover { border-color: var(--border-active); color: var(--text-secondary); background: rgba(20, 184, 166, 0.03); }
+.dropzone input[type="file"] {
+  position: absolute; inset: 0; opacity: 0; cursor: pointer; width: 100%; height: 100%;
+}
+.dz-text { font-size: 12px; }
+.dz-text em { font-style: normal; color: var(--teal); font-weight: 600; }
+.dz-file {
+  display: none; max-width: 100%;
+  font-family: 'JetBrains Mono', monospace; font-size: 10.5px;
+  color: var(--teal); background: rgba(20, 184, 166, 0.08);
+  border: 1px solid rgba(20, 184, 166, 0.25);
+  padding: 3px 10px; border-radius: var(--r-full);
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.dz-file.has-file { display: inline-block; }
 
 textarea, select {
   width: 100%; padding: 10px 12px;
-  background: rgba(5, 9, 20, 0.5);
+  background: rgba(7, 11, 20, 0.5);
   border: 1px solid var(--border-default);
   border-radius: var(--r-sm);
   color: var(--text-primary); font-size: 12.5px;
@@ -256,7 +252,7 @@ select { cursor: pointer; }
 /* ---- Buttons ---- */
 .btn {
   display: inline-flex; align-items: center; justify-content: center; gap: 6px;
-  border: none; padding: 10px 20px; border-radius: var(--r-sm);
+  border: none; padding: 11px 20px; border-radius: var(--r-sm);
   font-size: 12.5px; font-weight: 600; cursor: pointer;
   transition: all var(--t-fast);
   font-family: inherit; white-space: nowrap;
@@ -264,19 +260,19 @@ select { cursor: pointer; }
 .btn:disabled { opacity: 0.35; cursor: not-allowed; transform: none !important; }
 .btn-primary {
   width: 100%;
-  background: linear-gradient(135deg, var(--teal), #0F766E);
-  color: #0A0F1E; letter-spacing: 0.3px;
-  box-shadow: 0 2px 16px rgba(13, 148, 136, 0.20);
+  background: var(--teal);
+  color: #04110E; letter-spacing: 0.2px; font-weight: 700;
+  box-shadow: 0 1px 12px rgba(20, 184, 166, 0.22);
 }
-.btn-primary:hover:not(:disabled) { transform: translateY(-1px); box-shadow: 0 4px 24px rgba(13, 148, 136, 0.30); }
-.btn-primary:active:not(:disabled) { transform: translateY(0); }
+.btn-primary:hover:not(:disabled) { background: #1BC9B6; box-shadow: 0 3px 18px rgba(20, 184, 166, 0.32); }
+.btn-primary:active:not(:disabled) { background: var(--teal-dim); }
 .btn-accept {
   flex: 1;
-  background: linear-gradient(135deg, var(--emerald), #059669);
-  color: #fff;
-  box-shadow: 0 2px 12px rgba(52, 211, 153, 0.18);
+  background: var(--emerald);
+  color: #04120C; font-weight: 700;
+  box-shadow: 0 1px 10px rgba(52, 211, 153, 0.18);
 }
-.btn-accept:hover:not(:disabled) { transform: translateY(-1px); box-shadow: 0 4px 20px rgba(52, 211, 153, 0.28); }
+.btn-accept:hover:not(:disabled) { background: #4ADE9F; box-shadow: 0 3px 16px rgba(52, 211, 153, 0.28); }
 .btn-reset {
   flex: 1;
   background: transparent;
@@ -288,25 +284,47 @@ select { cursor: pointer; }
 .btn-ghost { background: transparent; border: 1px solid var(--border-default); color: var(--text-secondary); }
 .btn-ghost:hover:not(:disabled) { border-color: var(--border-strong); color: var(--text-primary); }
 
+/* ---- Landing intro (verdict legend) ---- */
+.intro-lead { font-size: 12px; color: var(--text-secondary); line-height: 1.65; margin-bottom: 12px; }
+.verdict-row {
+  display: flex; align-items: flex-start; gap: 10px;
+  padding: 8px 0; font-size: 12px; line-height: 1.55;
+  border-top: 1px solid rgba(255,255,255,0.03);
+}
+.verdict-row strong { color: var(--text-primary); font-weight: 600; }
+.verdict-row span:last-child { color: var(--text-secondary); }
+.verdict-chip {
+  flex-shrink: 0; margin-top: 1px;
+  font-size: 9.5px; font-weight: 700; letter-spacing: 0.6px;
+  padding: 3px 9px; border-radius: var(--r-full);
+}
+.verdict-chip.green { background: rgba(52, 211, 153, 0.10); color: var(--emerald); border: 1px solid rgba(52, 211, 153, 0.25); }
+.verdict-chip.yellow { background: rgba(250, 204, 21, 0.08); color: var(--amber); border: 1px solid rgba(250, 204, 21, 0.25); }
+.verdict-chip.red { background: rgba(251, 113, 133, 0.10); color: var(--rose); border: 1px solid rgba(251, 113, 133, 0.25); }
+.intro-foot {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px; color: var(--text-muted); line-height: 1.6;
+  margin-top: 10px; padding-top: 10px;
+  border-top: 1px solid rgba(255,255,255,0.03);
+}
+
 /* ============================================================
    SAMPLE CARDS
    ============================================================ */
-.sample-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.sample-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 9px; }
 .sample-card {
   display: flex; align-items: center; gap: 10px;
-  padding: 12px; border-radius: var(--r-md);
-  background: rgba(5, 9, 20, 0.4);
+  padding: 12px 13px; border-radius: var(--r-md);
+  background: rgba(7, 11, 20, 0.45);
   border: 1px solid var(--border-subtle);
-  cursor: pointer; transition: all var(--t-normal);
+  cursor: pointer; transition: border-color var(--t-normal), background var(--t-normal);
   text-align: left; font-family: inherit; color: inherit;
 }
 .sample-card:hover {
-  background: rgba(13, 148, 136, 0.05);
+  background: rgba(20, 184, 166, 0.05);
   border-color: var(--border-active);
-  transform: translateY(-2px);
-  box-shadow: var(--glow-teal);
 }
-.sample-card:active { transform: translateY(0); }
+.sample-card:active { background: rgba(20, 184, 166, 0.09); }
 .sample-dot {
   width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0;
 }
@@ -315,9 +333,9 @@ select { cursor: pointer; }
 .sample-dot.polyolefin { background: var(--blue); }
 .sample-dot.ester { background: #FACC15; }
 .sample-dot.unknown { background: var(--rose); }
-.sample-meta { display: flex; flex-direction: column; gap: 1px; overflow: hidden; }
+.sample-meta { display: flex; flex-direction: column; gap: 2px; overflow: hidden; }
 .sample-name { font-size: 12px; font-weight: 600; color: var(--text-primary); }
-.sample-file { font-size: 10px; color: var(--text-muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.sample-file { font-family: 'JetBrains Mono', monospace; font-size: 9.5px; color: var(--text-muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 
 /* ============================================================
    PIPELINE
@@ -349,10 +367,10 @@ select { cursor: pointer; }
 }
 .pipeline-step.active { color: var(--teal); }
 .pipeline-step.active .pipeline-dot {
-  background: rgba(13, 148, 136, 0.12);
+  background: rgba(20, 184, 166, 0.12);
   border-color: var(--teal);
   color: var(--teal);
-  box-shadow: 0 0 12px rgba(13, 148, 136, 0.25);
+  box-shadow: 0 0 12px rgba(20, 184, 166, 0.25);
   animation: dotPulse 2s infinite;
 }
 .pipeline-step.done { color: var(--emerald); }
@@ -371,8 +389,8 @@ select { cursor: pointer; }
 .pipeline-label { padding-top: 2px; line-height: 1.4; }
 
 @keyframes dotPulse {
-  0%, 100% { box-shadow: 0 0 8px rgba(245, 158, 11, 0.2); }
-  50% { box-shadow: 0 0 20px rgba(13, 148, 136, 0.45); }
+  0%, 100% { box-shadow: 0 0 8px rgba(20, 184, 166, 0.2); }
+  50% { box-shadow: 0 0 20px rgba(20, 184, 166, 0.45); }
 }
 
 /* ============================================================
@@ -384,30 +402,32 @@ select { cursor: pointer; }
   font-size: 10.5px; font-weight: 700; text-transform: uppercase;
   letter-spacing: 0.5px;
 }
-.verdict-badge.green { background: rgba(52, 211, 153, 0.10); color: var(--emerald); border: 1px solid rgba(52, 211, 153, 0.2); }
-.verdict-badge.yellow { background: rgba(13, 148, 136, 0.10); color: var(--teal); border: 1px solid rgba(245, 158, 11, 0.2); }
-.verdict-badge.red { background: rgba(251, 113, 133, 0.10); color: var(--rose); border: 1px solid rgba(251, 113, 133, 0.2); }
+.verdict-badge.green { background: rgba(52, 211, 153, 0.10); color: var(--emerald); border: 1px solid rgba(52, 211, 153, 0.25); }
+.verdict-badge.yellow { background: rgba(250, 204, 21, 0.08); color: var(--amber); border: 1px solid rgba(250, 204, 21, 0.25); }
+.verdict-badge.red { background: rgba(251, 113, 133, 0.10); color: var(--rose); border: 1px solid rgba(251, 113, 133, 0.25); }
 .verdict-badge.clarification { background: rgba(167, 139, 250, 0.10); color: var(--purple); border: 1px solid rgba(167, 139, 250, 0.2); }
 
 .best-match-card {
-  background: rgba(13, 148, 136, 0.03);
-  border: 1px solid rgba(13, 148, 136, 0.10);
-  border-radius: var(--r-md); padding: 14px;
+  background: rgba(20, 184, 166, 0.04);
+  border: 1px solid rgba(20, 184, 166, 0.14);
+  border-radius: var(--r-md); padding: 15px;
   margin-bottom: 12px;
 }
 .match-compound {
-  font-size: 18px; font-weight: 700; color: var(--text-primary);
-  line-height: 1.3; word-break: break-word;
+  font-size: 19px; font-weight: 700; color: var(--text-primary);
+  line-height: 1.3; word-break: break-word; letter-spacing: -0.2px;
 }
 .match-meta {
-  display: flex; align-items: center; gap: 10px; margin-top: 6px;
+  display: flex; align-items: center; gap: 10px; margin-top: 7px;
   font-size: 12px; color: var(--text-secondary); flex-wrap: wrap;
 }
 .match-meta-sep { color: var(--text-muted); }
 .match-score {
+  font-family: 'JetBrains Mono', monospace;
   font-weight: 700; color: var(--teal);
-  background: rgba(13, 148, 136, 0.08);
-  padding: 2px 8px; border-radius: var(--r-xs);
+  background: rgba(20, 184, 166, 0.08);
+  border: 1px solid rgba(20, 184, 166, 0.18);
+  padding: 2px 9px; border-radius: var(--r-xs);
 }
 
 .candidate-row {
@@ -425,7 +445,7 @@ select { cursor: pointer; }
 }
 
 .reasoning-box {
-  background: rgba(5, 9, 20, 0.5);
+  background: rgba(7, 11, 20, 0.5);
   border: 1px solid var(--border-subtle);
   border-radius: var(--r-sm);
   padding: 10px 12px; margin: 8px 0;
@@ -463,17 +483,22 @@ select { cursor: pointer; }
 
 .status-bar {
   display: flex; align-items: center; gap: 8px;
-  padding: 6px 10px; border-radius: var(--r-sm);
-  font-size: 10.5px; font-weight: 600; margin-bottom: 8px;
+  padding: 9px 12px; border-radius: var(--r-sm);
+  font-size: 12px; font-weight: 700; letter-spacing: 0.4px;
+  margin-bottom: 8px;
 }
-.status-bar.green { background: rgba(52, 211, 153, 0.06); color: var(--emerald); border: 1px solid rgba(52, 211, 153, 0.12); }
-.status-bar.yellow { background: rgba(245, 158, 11, 0.06); color: var(--teal); border: 1px solid rgba(13, 148, 136, 0.12); }
-.status-bar.red { background: rgba(251, 113, 133, 0.06); color: var(--rose); border: 1px solid rgba(251, 113, 133, 0.12); }
+.status-bar::before { content: ''; width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+.status-bar.green { background: rgba(52, 211, 153, 0.08); color: var(--emerald); border: 1px solid rgba(52, 211, 153, 0.22); }
+.status-bar.green::before { background: var(--emerald); box-shadow: 0 0 8px var(--emerald); }
+.status-bar.yellow { background: rgba(250, 204, 21, 0.07); color: var(--amber); border: 1px solid rgba(250, 204, 21, 0.22); }
+.status-bar.yellow::before { background: var(--amber); box-shadow: 0 0 8px var(--amber); }
+.status-bar.red { background: rgba(251, 113, 133, 0.08); color: var(--rose); border: 1px solid rgba(251, 113, 133, 0.22); }
+.status-bar.red::before { background: var(--rose); box-shadow: 0 0 8px var(--rose); }
 
 /* ---- Evidence Arbitration stat grid (judge-facing hero numbers) ---- */
 .arb-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin: 8px 0; }
 .arb-stat {
-  background: rgba(5, 9, 20, 0.55);
+  background: rgba(7, 11, 20, 0.55);
   border: 1px solid var(--border-default);
   border-radius: var(--r-md); padding: 12px 14px;
 }
@@ -538,7 +563,7 @@ select { cursor: pointer; }
   display: flex; align-items: center; justify-content: space-between;
   padding: 12px 20px;
   border-bottom: 1px solid var(--border-subtle);
-  background: rgba(5, 9, 20, 0.5);
+  background: rgba(7, 11, 20, 0.5);
   flex-shrink: 0;
 }
 .thinking-title-group { display: flex; align-items: center; gap: 10px; }
@@ -547,7 +572,7 @@ select { cursor: pointer; }
   background: var(--border-strong);
   transition: all var(--t-normal);
 }
-.thinking-dot.active { background: var(--teal); box-shadow: 0 0 8px rgba(245, 158, 11, 0.5); animation: dotBlink 1.2s infinite; }
+.thinking-dot.active { background: var(--teal); box-shadow: 0 0 8px rgba(20, 184, 166, 0.6); animation: dotBlink 1.2s infinite; }
 .thinking-dot.done { background: var(--emerald); }
 .thinking-title {
   font-size: 12px; font-weight: 700; text-transform: uppercase;
@@ -578,7 +603,7 @@ select { cursor: pointer; }
   flex: 1; overflow-y: auto; padding: 12px 20px;
   font-family: 'JetBrains Mono', 'SF Mono', 'Cascadia Code', 'Consolas', monospace;
   font-size: 12px; line-height: 1.7;
-  background: linear-gradient(180deg, rgba(5, 9, 20, 0.2) 0%, rgba(5, 9, 20, 0.5) 100%);
+  background: linear-gradient(180deg, rgba(7, 11, 20, 0.2) 0%, rgba(7, 11, 20, 0.5) 100%);
 }
 .log-entry {
   display: grid; grid-template-columns: 48px 56px 1fr;
@@ -605,28 +630,27 @@ select { cursor: pointer; }
 
 .thinking-empty {
   flex: 1; display: flex; flex-direction: column;
-  align-items: center; justify-content: center; gap: 14px;
+  align-items: center; justify-content: center; gap: 18px;
   padding: 48px;
 }
-.thinking-empty-icon {
-  width: 72px; height: 72px; border-radius: 50%;
-  background: rgba(56, 189, 248, 0.04);
-  border: 1px solid var(--border-default);
-  display: flex; align-items: center; justify-content: center;
-  opacity: 0.5;
+.thinking-empty-wave { opacity: 0.75; }
+.thinking-empty-wave path {
+  stroke-dasharray: 640;
+  stroke-dashoffset: 640;
+  animation: traceWave 5s ease-in-out infinite;
 }
-.thinking-empty-icon::after {
-  content: '';
-  width: 20px; height: 20px;
-  border: 2px solid var(--text-muted);
-  border-radius: 50%;
-  border-top-color: transparent;
-  animation: spin 2s linear infinite;
+@keyframes traceWave {
+  0% { stroke-dashoffset: 640; opacity: 0.4; }
+  55% { stroke-dashoffset: 0; opacity: 1; }
+  100% { stroke-dashoffset: 0; opacity: 0.4; }
 }
-@keyframes spin { to { transform: rotate(360deg); } }
+.thinking-empty-title {
+  font-size: 13.5px; font-weight: 600; color: var(--text-secondary);
+  letter-spacing: 0.2px;
+}
 .thinking-empty-text {
-  font-size: 13px; color: var(--text-muted); text-align: center;
-  line-height: 1.6; max-width: 260px;
+  font-size: 12px; color: var(--text-muted); text-align: center;
+  line-height: 1.7; max-width: 300px; margin-top: -8px;
 }
 
 /* ============================================================
@@ -636,11 +660,11 @@ select { cursor: pointer; }
 .chat-messages { max-height: 180px; overflow-y: auto; margin-bottom: 8px; }
 .chat-bubble { padding: 8px 12px; margin: 4px 0; border-radius: var(--r-sm); font-size: 12px; line-height: 1.6; }
 .chat-bubble.user { background: rgba(56, 189, 248, 0.06); border: 1px solid rgba(56, 189, 248, 0.10); }
-.chat-bubble.agent { background: rgba(13, 148, 136, 0.04); border: 1px solid rgba(13, 148, 136, 0.08); }
+.chat-bubble.agent { background: rgba(20, 184, 166, 0.04); border: 1px solid rgba(20, 184, 166, 0.08); }
 .chat-input-row { display: flex; gap: 6px; }
 .chat-input-row input {
   flex: 1; padding: 8px 12px;
-  background: rgba(5, 9, 20, 0.5);
+  background: rgba(7, 11, 20, 0.5);
   border: 1px solid var(--border-default);
   border-radius: var(--r-sm);
   color: var(--text-primary); font-size: 12px;
@@ -653,7 +677,7 @@ select { cursor: pointer; }
    REPORT
    ============================================================ */
 .report-body {
-  background: rgba(5, 9, 20, 0.6);
+  background: rgba(7, 11, 20, 0.6);
   border: 1px solid var(--border-subtle);
   border-radius: var(--r-sm);
   padding: 14px; margin: 10px 0;
@@ -711,15 +735,20 @@ select { cursor: pointer; }
   <!-- HEADER -->
   <header class="app-header">
     <div class="header-brand">
-      <div class="header-logo">
-        <span class="header-logo-line1">Qwen Cloud Hackathon</span>
-        <span class="header-logo-line2">Track 4</span>
+      <div class="brand-mark">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+          <path d="M2 14 L5 14 L7 6 L9 18 L11 10 L13 14 L16 14 L18 9 L20 14 L22 14"
+                stroke="#14B8A6" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
       </div>
-      <span class="header-title">ChemSpectra Agent</span>
+      <div class="brand-text">
+        <span class="header-title">ChemSpectra Agent</span>
+        <span class="header-sub">FTIR Evidence Arbitration &middot; Qwen Cloud Hackathon Track 4</span>
+      </div>
     </div>
     <div class="header-badges">
-      <span class="badge badge-qwen">Qwen-3.7-Max</span>
-      <span class="badge badge-qwen" style="background:rgba(16,185,129,0.12);color:#10b981">FTIR.fun · 130K spectra</span>
+      <span class="badge badge-qwen">Qwen-3.7-Max &middot; Alibaba Cloud DashScope</span>
+      <span class="badge badge-lib">FTIR.fun &middot; 130K spectra</span>
     </div>
   </header>
 
@@ -746,8 +775,16 @@ select { cursor: pointer; }
         <span class="card-title">Upload Spectrum</span>
       </div>
       <form id="uploadForm" enctype="multipart/form-data">
-        <label class="input-label">Spectrum File <sub>CSV / JCAMP-DX / TXT / JSON</sub></label>
-        <input type="file" name="file" id="specFile" accept=".csv,.jdx,.dx,.txt,.json,.spa,.spc">
+        <label class="input-label">Spectrum File <sub>CSV / JCAMP-DX / SPA / SPC / TXT / JSON</sub></label>
+        <label class="dropzone">
+          <input type="file" name="file" id="specFile" accept=".csv,.jdx,.dx,.txt,.json,.spa,.spc">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" style="color:var(--teal)">
+            <path d="M12 16V4m0 0L8 8m4-4l4 4" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M4 15v3a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-3" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/>
+          </svg>
+          <span class="dz-text">Drop a spectrum file or <em>browse</em></span>
+          <span class="dz-file" id="dzFile"></span>
+        </label>
         <label class="input-label" style="margin-top:10px">Sample Context <sub>optional, max 200 chars</sub></label>
         <textarea name="context" id="sampleCtx" rows="2" maxlength="200" placeholder="e.g. Polymer film, suspected PE/PP blend">Unknown sample, identify composition</textarea>
         <input type="hidden" name="analysis_type" value="identify">
@@ -755,6 +792,32 @@ select { cursor: pointer; }
           &#128269; Analyze
         </button>
       </form>
+    </div>
+
+    <!-- How verdicts work (landing intro; hidden during analysis) -->
+    <div class="card" id="introCard">
+      <div class="card-header">
+        <span class="card-title">How the agent decides</span>
+      </div>
+      <p class="intro-lead">
+        Qwen routes each request through six real tools, then deterministic Python rules
+        arbitrate the library evidence to one of three defensible levels:
+      </p>
+      <div class="verdict-row">
+        <span class="verdict-chip green">GREEN</span>
+        <div><strong>Entity locked</strong><span> — evidence is sufficient to act on the top candidate.</span></div>
+      </div>
+      <div class="verdict-row">
+        <span class="verdict-chip yellow">YELLOW</span>
+        <div><strong>Direction locked</strong><span> — no single compound, but the chemical family holds; a next-step lab plan is generated.</span></div>
+      </div>
+      <div class="verdict-row">
+        <span class="verdict-chip red">RED</span>
+        <div><strong>Refuses to guess</strong><span> — candidates diverge; the agent reports honest uncertainty.</span></div>
+      </div>
+      <p class="intro-foot">
+        confidence = library score &times; rule-check multiplier &nbsp;&middot;&nbsp; same input, same verdict &nbsp;&middot;&nbsp; full JSON audit trail
+      </p>
     </div>
 
     <!-- Pipeline -->
@@ -903,10 +966,14 @@ select { cursor: pointer; }
     <div class="thinking-activity-row" id="thinkingActivity"></div>
     <div class="thinking-log" id="thinkingLog">
       <div class="thinking-empty" id="thinkingEmpty">
-        <div class="thinking-empty-icon"></div>
+        <svg class="thinking-empty-wave" width="280" height="80" viewBox="0 0 280 80" fill="none">
+          <path d="M0 22 L30 22 L42 24 L50 58 L58 24 L72 26 L84 40 L92 26 L118 28 L128 66 L138 28 L156 30 L166 46 L176 30 L198 32 L210 54 L222 32 L248 30 L262 34 L280 32"
+                stroke="#14B8A6" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        <div class="thinking-empty-title">Awaiting spectrum</div>
         <div class="thinking-empty-text">
           Select a demo sample or upload a spectrum file.<br>
-          The agent's real-time reasoning chain will stream here.
+          Qwen's live tool routing and reasoning chain will stream here.
         </div>
       </div>
     </div>
@@ -1010,6 +1077,7 @@ async function loadSample(url, filename) {
   const dt = new DataTransfer();
   dt.items.add(file);
   $('specFile').files = dt.files;
+  updateFileChip();
   auditEvent('sample_selected', {
     filename,
     size_bytes: file.size,
@@ -1018,6 +1086,15 @@ async function loadSample(url, filename) {
   // Scroll upload card into view so user can review and click Analyze
   $('uploadCard').scrollIntoView({ behavior: 'smooth', block: 'start' });
 }
+
+function updateFileChip() {
+  const f = $('specFile').files[0];
+  const chip = $('dzFile');
+  if (!chip) return;
+  if (f) { chip.textContent = f.name; chip.classList.add('has-file'); }
+  else { chip.textContent = ''; chip.classList.remove('has-file'); }
+}
+$('specFile').addEventListener('change', updateFileChip);
 
 // ---- Validation ----
 function validateForm() {
@@ -1116,6 +1193,7 @@ $('uploadForm').addEventListener('submit', async e => {
   if (!validateForm()) return;
 
   $('submitBtn').disabled = true;
+  $('introCard').classList.add('hidden');
   $('pipelineCard').classList.remove('hidden');
   $('resultsCard').classList.add('hidden');
   $('reportCard').classList.add('hidden');
@@ -1347,7 +1425,11 @@ function renderResults(data) {
   if (decisionLines.length > 0 || arb.innerHTML) {
     $('decisionBlock').classList.remove('hidden');
     const ds = c.decision_status || 'yellow';
-    const dsLabels = { green: 'GREEN — Pass', yellow: 'YELLOW — Caution', red: 'RED — Review Required' };
+    const dsLabels = {
+      green: 'GREEN — Evidence sufficient to act',
+      yellow: 'YELLOW — Direction locked · human review required',
+      red: 'RED — Uncertain · the agent refuses to guess',
+    };
     const bar = $('decisionStatusBar');
     bar.textContent = dsLabels[ds] || ds.toUpperCase();
     bar.className = 'status-bar ' + (ds === 'green' ? 'green' : ds === 'yellow' ? 'yellow' : 'red');
@@ -1517,6 +1599,7 @@ function downloadReport() {
 function resetAll() {
   currentSessionId = null;
   $('uploadForm').reset();
+  updateFileChip();
   ['pipelineCard','resultsCard','reportCard','decisionBlock','qualityBlock','cvBlock','peaksBlock','toolsBlock','synthesisBlock','flagsBlock','planBlock'].forEach(id => {
     const el = $(id);
     if (el) el.classList.add('hidden');
@@ -1531,13 +1614,17 @@ function resetAll() {
     '<button class="btn btn-accept" onclick="confirmResult()">Accept &amp; Generate Report</button>' +
     '<button class="btn btn-reset" onclick="resetAll()">New Analysis</button>';
   $('confirmActions').classList.remove('hidden');
+  $('introCard').classList.remove('hidden');
   $('demoCard').style.opacity = '1';
 
   // Reset thinking panel
   $('thinkingLog').innerHTML =
     '<div class="thinking-empty" id="thinkingEmpty">' +
-      '<div class="thinking-empty-icon"></div>' +
-      '<div class="thinking-empty-text">Select a demo sample or upload a spectrum file.<br>The agent\'s real-time reasoning chain will stream here.</div>' +
+      '<svg class="thinking-empty-wave" width="280" height="80" viewBox="0 0 280 80" fill="none">' +
+        '<path d="M0 22 L30 22 L42 24 L50 58 L58 24 L72 26 L84 40 L92 26 L118 28 L128 66 L138 28 L156 30 L166 46 L176 30 L198 32 L210 54 L222 32 L248 30 L262 34 L280 32" ' +
+        'stroke="#14B8A6" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>' +
+      '<div class="thinking-empty-title">Awaiting spectrum</div>' +
+      '<div class="thinking-empty-text">Select a demo sample or upload a spectrum file.<br>Qwen\'s live tool routing and reasoning chain will stream here.</div>' +
     '</div>';
   $('thinkingActivity').innerHTML = '';
   $('thinkingStatus').textContent = '';
