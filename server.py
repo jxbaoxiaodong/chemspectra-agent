@@ -138,7 +138,7 @@ async def list_samples(request: Request):
     """Return available demo samples for one-click evaluation."""
     samples = []
     for f in sorted(_samples_dir.iterdir()):
-        if f.is_file() and f.suffix in (".csv", ".dx", ".jdx", ".txt", ".json", ".spa", ".spc"):
+        if f.is_file() and f.suffix in (".csv", ".dx", ".jdx", ".txt", ".json"):
             samples.append({"filename": f.name, "url": f"/samples/{f.name}"})
     audit_logger.write_event(
         category="api",

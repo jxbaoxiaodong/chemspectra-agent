@@ -775,9 +775,9 @@ select { cursor: pointer; }
         <span class="card-title">Upload Spectrum</span>
       </div>
       <form id="uploadForm" enctype="multipart/form-data">
-        <label class="input-label">Spectrum File <sub>CSV / JCAMP-DX / SPA / SPC / TXT / JSON</sub></label>
+        <label class="input-label">Spectrum File <sub>CSV / JCAMP-DX / TXT / JSON</sub></label>
         <label class="dropzone">
-          <input type="file" name="file" id="specFile" accept=".csv,.jdx,.dx,.txt,.json,.spa,.spc">
+          <input type="file" name="file" id="specFile" accept=".csv,.jdx,.dx,.txt,.json">
           <svg width="22" height="22" viewBox="0 0 24 24" fill="none" style="color:var(--teal)">
             <path d="M12 16V4m0 0L8 8m4-4l4 4" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/>
             <path d="M4 15v3a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-3" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/>
@@ -1110,7 +1110,7 @@ function validateForm() {
     return false;
   }
   const ext = file.name.split('.').pop().toLowerCase();
-  if (!['csv','jdx','dx','txt','json','spa','spc'].includes(ext)) {
+  if (!['csv','jdx','dx','txt','json'].includes(ext)) {
     alert('Unsupported file format. Please use CSV, JCAMP-DX (.jdx/.dx), TXT, or JSON.');
     return false;
   }
